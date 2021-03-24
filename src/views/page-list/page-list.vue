@@ -14,9 +14,21 @@ let offsetX = 0,
 export default {
   mounted() {
     const el = this.$refs.DRAGGABLE;
-    el.onresize = (e) => {
-      console.log(10);
-    };
+    const observer = new ResizeObserver((entries) => {
+      console.log(entries[0]);
+    });
+    observer.observe(el);
+
+    // ------------------------------ 1920 20 75    21 20
+    // ------------------------------ 1740 20 66    21 20
+
+    for (let x = 20, xw = 0; xw < 2000; xw++) {
+      const width = (1740 - x * xw) / (x + 1);
+      if (Number.isInteger(width)) {
+        // if (width <= 20)
+        console.log(x, xw, width);
+      }
+    }
   },
 
   methods: {
@@ -92,15 +104,17 @@ export default {
 div.page-list {
   position: relative;
   height: 100%;
+  background-image: url('../../assets/image/back.png');
 
   div.drag {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100px;
-    height: 100px;
+    width: 86px;
+    height: 86px;
     resize: both;
     overflow: auto;
+    opacity: 0.3;
     background-color: aquamarine;
   }
 }
