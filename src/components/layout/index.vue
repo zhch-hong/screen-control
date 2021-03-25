@@ -9,6 +9,8 @@
   </div>
 </template>
 <script>
+/* eslint-disable vue/no-unused-components */
+
 import Nav from './nav/index.vue';
 
 export default {
@@ -28,6 +30,7 @@ div.container {
   div.main {
     position: relative;
     flex-grow: 1;
+    overflow: auto;
     box-shadow: 0 0 2px 1px #ecf5ff;
   }
 }
