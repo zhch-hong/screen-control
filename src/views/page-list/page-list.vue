@@ -1,24 +1,41 @@
 <template>
-  <div class="page-list" @drop="ondrop" @dragover="ondragover" @dragenter="ondragenter" @dragleave="ondragleave">
-    <div style="padding: 1px">
-      <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin} 0` }">
-        <li
-          v-for="indexli in 20"
-          :key="indexli"
-          :ref="'REF_' + indexul + '_' + indexli"
-          :style="{ width: border, height: border }"
-        ></li>
-      </ul>
+  <div class="page-list">
+    <div class="layout-item">
+      <h4>列表栏目</h4>
+      <div class="item-list">
+        <div v-for="index of 4" :key="index" class="item" draggable="true" @dragend="onItemDragend"></div>
+      </div>
+      <h4>链接栏目</h4>
+      <h4>图表栏目</h4>
     </div>
-    <div ref="DRAGGABLE" class="drag" draggable="true" @drag="ondrag" @dragstart="ondragstart" @dragend="ondragend">
-      <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
-      <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
+    <div
+      ref="LayoutPanel"
+      class="layout-panel"
+      @drop="ondrop"
+      @dragover="ondragover"
+      @dragenter="ondragenter"
+      @dragleave="ondragleave"
+    >
+      <div style="padding: 1px">
+        <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin} 0` }">
+          <li
+            v-for="indexli in 20"
+            :key="indexli"
+            :ref="'REF_' + indexul + '_' + indexli"
+            :style="{ width: border, height: border }"
+          ></li>
+        </ul>
+      </div>
+      <div class="drag" draggable="true" @drag="ondrag" @dragstart="ondragstart" @dragend="ondragend">
+        <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
+        <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
+      </div>
     </div>
   </div>
 </template>
 <script>
 /* eslint-disable no-unused-vars */
-
+import Vue from 'vue';
 import _ from 'lodash';
 
 const UNRELATED = {
@@ -26,6 +43,44 @@ const UNRELATED = {
   offsetY: 0,
   scrollY: 0,
 };
+
+const CONSUMED_WIDTH = 360;
+
+function getComponentOption(h, dragstartHandler, dragendHandler, resizeHeight, resizeWidth) {
+  const drag = {
+    render() {
+      return h(
+        'div',
+        {
+          staticClass: 'drag',
+          attrs: {
+            draggable: true,
+          },
+          on: {
+            dragstart: dragstartHandler,
+            dragend: dragendHandler,
+          },
+        },
+        [
+          h('div', {
+            staticClass: 'horizontal',
+            on: {
+              mousedown: resizeHeight,
+            },
+          }),
+          h('div', {
+            staticClass: 'vertical',
+            on: {
+              mousedown: resizeWidth,
+            },
+          }),
+        ]
+      );
+    },
+  };
+
+  return drag;
+}
 
 export default {
   data() {
@@ -42,13 +97,12 @@ export default {
   },
 
   beforeDestroy() {
-    console.log('beforeDestroy');
     window.removeEventListener('resize', this.debounceFlush);
   },
 
   methods: {
     flushLayout() {
-      const width = window.innerWidth - 180;
+      const width = window.innerWidth - CONSUMED_WIDTH;
       const border = Math.floor((width * 3.75) / 86);
       this.border = border + 'px';
       this.margin = Math.floor(border / 3.75 / 2) + 'px';
@@ -62,7 +116,8 @@ export default {
     ondragstart(e) {
       UNRELATED.offsetX = e.offsetX;
       UNRELATED.offsetY = e.offsetY;
-      const main = e.target.parentElement.parentElement;
+      const main = e.target.parentElement;
+      console.log(main);
       UNRELATED.scrollY = main.scrollTop;
     },
 
@@ -76,7 +131,7 @@ export default {
      */
     ondragend(e) {
       const top = e.clientY + UNRELATED.scrollY - UNRELATED.offsetY;
-      const left = e.clientX - 180 - UNRELATED.offsetX;
+      const left = e.clientX - CONSUMED_WIDTH - UNRELATED.offsetX;
 
       const len = parseFloat(this.border) + parseFloat(this.margin);
       const row = top / len;
@@ -85,8 +140,29 @@ export default {
       const li = this.$refs['REF_' + Math.ceil(row) + '_' + Math.ceil(col)][0];
       const rect = li.getBoundingClientRect();
 
-      e.target.style.left = rect.left - 180 + 'px';
+      e.target.style.left = rect.left - CONSUMED_WIDTH + 'px';
       e.target.style.top = rect.top + UNRELATED.scrollY + 'px';
+    },
+
+    /**
+     * 当左边单个栏目拖动结束时的处理回调
+     */
+    onItemDragend(e) {
+      if (e.dataTransfer.dropEffect === 'copy') {
+        const option = getComponentOption(
+          this.$createElement,
+          this.ondragstart,
+          this.ondragend,
+          this.resizeHeight,
+          this.resizeWidth
+        );
+        const optionClass = Vue.extend(option);
+        console.log(this.$refs.LayoutPanel);
+        const div = document.createElement('div');
+        this.$refs.LayoutPanel.append(div);
+        const instance = new optionClass();
+        instance.$mount(div);
+      }
     },
 
     // ------------------------ 放置区域
@@ -125,6 +201,7 @@ export default {
 
     // ---------------------------------------- 调整宽高
     resizeWidth(e) {
+      this.ondragstart(e);
       const dragElement = e.target.parentElement;
       const left = parseFloat(dragElement.style.left);
       const ul = dragElement.parentElement.querySelector('ul.back');
@@ -133,7 +210,7 @@ export default {
       const width = space + Number.parseFloat(this.border);
 
       const handler = (e) => {
-        dragElement.style.width = e.clientX - left - 180 + 'px';
+        dragElement.style.width = e.clientX - left - CONSUMED_WIDTH + 'px';
       };
 
       document.addEventListener('mousemove', handler);
@@ -141,7 +218,7 @@ export default {
       document.addEventListener(
         'mouseup',
         (e) => {
-          dragElement.style.width = Math.ceil((e.clientX - 180) / width) * width - left + 1 + 'px';
+          dragElement.style.width = Math.ceil((e.clientX - CONSUMED_WIDTH) / width) * width - left + 1 + 'px';
           document.removeEventListener('mousemove', handler);
         },
         { once: true }
@@ -149,10 +226,10 @@ export default {
     },
 
     resizeHeight(e) {
+      this.ondragstart(e);
       const dragElement = e.target.parentElement;
-      const scrollTop = dragElement.parentElement.parentElement.scrollTop;
+      const scrollTop = dragElement.parentElement.scrollTop;
       const top = parseFloat(dragElement.style.top);
-
       const handler = (e) => {
         dragElement.style.height = e.clientY + scrollTop - top + 'px';
       };
@@ -177,7 +254,38 @@ export default {
 </script>
 <style lang="scss" scoped>
 div.page-list {
+  height: 100%;
+  display: flex;
+}
+
+div.layout-item {
+  width: 180px;
+  background-color: #f9f9f9;
+
+  h4 {
+    margin: 0.6em 5px;
+  }
+
+  div.item-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    div.item {
+      margin: 4px 0;
+      width: 80px;
+      height: 80px;
+      background-color: aqua;
+    }
+  }
+}
+
+div.layout-panel {
   position: relative;
+  overflow: auto;
+  flex-grow: 1;
 
   ul.back {
     margin: 0;
