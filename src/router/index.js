@@ -1,5 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 
 import Layout from '@/components/layout/index.vue';
 
@@ -12,8 +12,8 @@ const routes = [
     children: [
       {
         path: '',
-        name: '栏目',
-        component: () => import('@/views/page-list/page-list.vue'),
+        name: '门户',
+        component: () => import('@/views/portal-list/portal-list.vue'),
         meta: {
           icon: 'el-icon-menu',
         },
@@ -26,8 +26,8 @@ const routes = [
     children: [
       {
         path: '',
-        name: '门户',
-        component: () => import('@/views/portal-list/portal-list.vue'),
+        name: '栏目',
+        component: () => import('@/views/page-list/page-list.vue'),
         meta: {
           icon: 'el-icon-s-platform',
         },
@@ -40,5 +40,5 @@ const router = new VueRouter({
   routes,
 });
 
-export {routes}
+export { routes };
 export default router;

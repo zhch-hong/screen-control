@@ -11,31 +11,33 @@ const UNRELATED = {
   scrollY: 0,
 };
 
-export default {
-  props: ['consumedWidth'],
+const CONSUMED_WIDTH = 360;
+const CONSUMED_HEIGHT = 147;
 
+export default {
   methods: {
     ondragstart(e) {
       UNRELATED.offsetX = e.offsetX;
       UNRELATED.offsetY = e.offsetY;
       const main = e.target.parentElement;
-      console.log(main);
       UNRELATED.scrollY = main.scrollTop;
     },
 
     ondragend(e) {
-      const top = e.clientY + UNRELATED.scrollY - UNRELATED.offsetY;
-      const left = e.clientX - this.consumedWidth - UNRELATED.offsetX;
+      console.log(CONSUMED_HEIGHT);
+      const top = e.clientY + UNRELATED.scrollY - UNRELATED.offsetY - CONSUMED_HEIGHT;
+      const left = e.clientX - CONSUMED_WIDTH - UNRELATED.offsetX;
 
       const len = parseFloat(this.border) + parseFloat(this.margin);
       const row = top / len;
       const col = left / len;
 
-      const li = this.$refs['REF_' + Math.ceil(row) + '_' + Math.ceil(col)][0];
+      // const li = this.$refs['REF_' + Math.ceil(row) + '_' + Math.ceil(col)][0];
+      const li = this.getElement('REF_' + Math.ceil(row) + '_' + Math.ceil(col));
       const rect = li.getBoundingClientRect();
 
-      e.target.style.left = rect.left - this.consumedWidth + 'px';
-      e.target.style.top = rect.top + UNRELATED.scrollY + 'px';
+      e.target.style.left = rect.left - CONSUMED_WIDTH + 'px';
+      e.target.style.top = rect.top + UNRELATED.scrollY - CONSUMED_HEIGHT + 'px';
     },
 
     resizeWidth(e) {
@@ -47,7 +49,7 @@ export default {
       const width = space + Number.parseFloat(this.border);
 
       const handler = (e) => {
-        dragElement.style.width = e.clientX - left - this.consumedWidth + 'px';
+        dragElement.style.width = e.clientX - left - CONSUMED_WIDTH + 'px';
       };
 
       document.addEventListener('mousemove', handler);
@@ -55,7 +57,7 @@ export default {
       document.addEventListener(
         'mouseup',
         (e) => {
-          dragElement.style.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left + 1 + 'px';
+          dragElement.style.width = Math.ceil((e.clientX - CONSUMED_WIDTH) / width) * width - left + 'px';
           document.removeEventListener('mousemove', handler);
         },
         { once: true }
@@ -67,7 +69,7 @@ export default {
       const scrollTop = dragElement.parentElement.scrollTop;
       const top = parseFloat(dragElement.style.top);
       const handler = (e) => {
-        dragElement.style.height = e.clientY + scrollTop - top + 'px';
+        dragElement.style.height = e.clientY + scrollTop - top - CONSUMED_HEIGHT + 'px';
       };
 
       document.addEventListener('mousemove', handler);
@@ -77,8 +79,9 @@ export default {
         (e) => {
           const _f = Number.parseFloat;
           const _h = _f(this.border) + _f(this.margin);
-          const _d = Math.ceil((e.clientY + scrollTop) / _h) * _h - (top + _f(dragElement.style.height));
-          dragElement.style.height = _f(dragElement.style.height) + _d + 1 + 'px';
+          const _d =
+            Math.ceil((e.clientY - CONSUMED_HEIGHT + scrollTop) / _h) * _h - (top + _f(dragElement.style.height));
+          dragElement.style.height = _f(dragElement.style.height) + _d + 'px';
 
           document.removeEventListener('mousemove', handler);
         },
