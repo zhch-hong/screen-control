@@ -1,0 +1,32 @@
+export default {
+  msg: '成功',
+  code: '200',
+  data: {
+    id: 9,
+    uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
+    portal_name: '测试门户名称2X',
+    portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
+    is_use: '',
+    background_img: '',
+    created_by: 1,
+    created_utc_datetime: 1616051161000,
+    updated_by: 1,
+    updated_utc_datetime: 1616053686000,
+  },
+  '~table~': 'lx_sys_portals',
+  lx_sys_portals_sub: [
+    {
+      portal_person: '',
+      org_level_uuid: '00000000-0000-0000-0000-000000000000',
+      page_uuid: '82314f3e-006f-4caa-b2a9-d72057563ca1',
+      page_left_top_Y: 1,
+      page_right_botton_X: 3,
+      id: 1,
+      page_left_top_X: 0,
+      page_right_botton_Y: 4,
+      uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
+      portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
+    },
+  ],
+  status: 'success',
+};

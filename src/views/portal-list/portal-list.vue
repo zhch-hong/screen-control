@@ -3,7 +3,9 @@
     <div class="layout-item">
       <h4>列表栏目</h4>
       <div class="item-list">
-        <div v-for="index of 4" :key="index" class="item" draggable="true" @dragend="onItemDragend"></div>
+        <div v-for="index of 4" :key="index" class="item" draggable="true" @dragend="onItemDragend">
+          name_{{ index }}
+        </div>
       </div>
       <h4>链接栏目</h4>
       <h4>图表栏目</h4>
@@ -128,9 +130,9 @@ export default {
         // this.$refs.LayoutPanel.append(div);
         // const instance = new optionClass();
         // instance.$mount(div);
-
         const Class = Vue.extend(DragItem);
         const instance = new Class();
+        const name = e.target.innerText;
 
         instance.getElement = this.getElement;
         instance.border = this.border;
@@ -140,6 +142,10 @@ export default {
         const div = document.createElement('div');
         this.$refs.LayoutPanel.append(div);
         instance.$mount(div);
+
+        instance.$nextTick(() => {
+          instance.$set(instance.$data, 'dragName', name);
+        });
       }
     },
 

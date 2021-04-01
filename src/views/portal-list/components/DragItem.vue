@@ -1,5 +1,6 @@
 <template>
   <div class="drag" draggable="true" @dragstart="ondragstart" @dragend="ondragend">
+    <span>{{ dragName }}</span>
     <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
     <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
   </div>
@@ -15,6 +16,12 @@ const CONSUMED_WIDTH = 360;
 const CONSUMED_HEIGHT = 147;
 
 export default {
+  data() {
+    return {
+      dragName: '',
+    };
+  },
+
   methods: {
     ondragstart(e) {
       UNRELATED.offsetX = e.offsetX;
