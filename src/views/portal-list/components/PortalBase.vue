@@ -20,6 +20,10 @@
       <img v-if="imageUrl" :src="imageUrl" class="avatar" />
       <i v-else class="el-icon-plus"></i>
     </el-upload>
+    <div>
+      <el-button @click="$emit('cancel')">取消</el-button>
+      <el-button @click="handleSubmit">保存</el-button>
+    </div>
   </div>
 </template>
 <script>
@@ -40,6 +44,12 @@ export default {
         { label: 'C', value: 'c' },
       ],
     };
+  },
+
+  methods: {
+    handleSubmit() {
+      this.$emit('submit');
+    },
   },
 };
 </script>

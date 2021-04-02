@@ -11,7 +11,7 @@
       <h4>图表栏目</h4>
     </div>
     <div class="main-container">
-      <PortalBase />
+      <PortalBase @submit="handleSubmit" />
       <div
         ref="LayoutPanel"
         class="layout-panel"
@@ -185,6 +185,27 @@ export default {
     ondrop(e) {
       e.preventDefault();
       // console.log('drop');
+    },
+
+    handleSubmit() {
+      const element = this.$refs.LayoutPanel;
+      const nodeList = element.querySelectorAll('div.drag');
+      const dataList = [];
+      nodeList.forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        const data = {
+          page_uuid: node.innerText,
+          org_level_uuid: '',
+          portal_person: '',
+          page_left_top_X: rect.left,
+          page_left_top_Y: rect.top,
+          page_right_botton_X: rect.right,
+          page_right_botton_Y: rect.bottom,
+        };
+        dataList.push(data);
+      });
+
+      console.log(dataList);
     },
   },
 };
