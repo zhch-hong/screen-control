@@ -21,6 +21,23 @@ const routes = [
     ],
   },
   {
+    path: '/update-portal',
+    component: Layout,
+    meta: { hidden: true },
+    children: [
+      {
+        path: 'update/:uuid',
+        name: '更新门户',
+        component: () => import('@/views/update-portal/update/update-portal.vue'),
+      },
+      {
+        path: 'create',
+        name: '新增门户',
+        component: () => import('@/views/update-portal/create/create-portal.vue'),
+      },
+    ],
+  },
+  {
     path: '/portal-list',
     component: Layout,
     children: [

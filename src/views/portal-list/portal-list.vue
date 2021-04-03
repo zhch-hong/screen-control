@@ -1,266 +1,153 @@
 <template>
-  <div class="page-list">
-    <div class="layout-item">
-      <h4>列表栏目</h4>
-      <div class="item-list">
-        <div v-for="index of 4" :key="index" class="item" draggable="true" @dragend="onItemDragend">
-          name_{{ index }}
-        </div>
-      </div>
-      <h4>链接栏目</h4>
-      <h4>图表栏目</h4>
-    </div>
-    <div class="main-container">
-      <PortalBase @submit="handleSubmit" />
-      <div
-        ref="LayoutPanel"
-        class="layout-panel"
-        @drop="ondrop"
-        @dragover="ondragover"
-        @dragenter="ondragenter"
-        @dragleave="ondragleave"
-      >
-        <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin} 0` }">
-          <li
-            v-for="indexli in 20"
-            :key="indexli"
-            :ref="'REF_' + indexul + '_' + indexli"
-            :style="{ width: border, height: border }"
-          ></li>
-        </ul>
-        <!-- <div class="drag" draggable="true" @dragstart="ondragstart" @dragend="ondragend">
-        <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
-        <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
-      </div> -->
-      </div>
-    </div>
+  <div>
+    <vxe-toolbar perfect>
+      <template #buttons>
+        <el-button type="primary" @click="createMenhu">新增</el-button>
+      </template>
+    </vxe-toolbar>
+    <vxe-table ref="xTable" :data="tableData">
+      <vxe-table-column title="门户名称" field="portal_name"></vxe-table-column>
+      <vxe-table-column title="门户关联菜单" field="portal_menu"></vxe-table-column>
+      <vxe-table-column title="所属公司" field=""></vxe-table-column>
+      <vxe-table-column title="是否启用" field="is_use" :formatter="enableFormat"></vxe-table-column>
+      <vxe-table-column title="操作">
+        <template #default="{ row }">
+          <el-button v-if="row['is_use'] == 1" size="mini" @click="handleDisable(row)">禁用</el-button>
+          <el-button v-if="row['is_use'] == 2" size="mini" @click="handleEnable(row)">停用</el-button>
+          <el-button size="mini" @click="updateMenhu(row)">修改</el-button>
+          <el-button size="mini">删除</el-button>
+        </template>
+      </vxe-table-column>
+    </vxe-table>
   </div>
 </template>
 <script>
 /* eslint-disable no-unused-vars */
-import Vue from 'vue';
 import _ from 'lodash';
-import DragItem from './components/DragItem.vue';
-import PortalBase from './components/PortalBase.vue';
+import { menhuList, updateMenhu } from '@/network';
 
-const CONSUMED_WIDTH = 360;
-
-function getComponentOption(h, dragstartHandler, dragendHandler, resizeHeight, resizeWidth) {
-  const drag = {
-    render() {
-      return h(
-        'div',
-        {
-          staticClass: 'drag',
-          attrs: {
-            draggable: true,
-          },
-          on: {
-            dragstart: dragstartHandler,
-            dragend: dragendHandler,
-          },
-        },
-        [
-          h('div', {
-            staticClass: 'horizontal',
-            on: {
-              mousedown: resizeHeight,
-            },
-          }),
-          h('div', {
-            staticClass: 'vertical',
-            on: {
-              mousedown: resizeWidth,
-            },
-          }),
-        ]
-      );
+const data = {
+  code: '200',
+  '~table~': 'lx_sys_portals',
+  data: [
+    {
+      portal_name: '测试门户名称1',
+      updated_utc_datetime: null,
+      updated_by: '',
+      id: 1,
+      is_use: '1',
+      background_img: '',
+      uuid: '5e1ef6a4-3018-4430-b992-24e55599c70b',
+      created_by: 1,
+      created_utc_datetime: 1616047874000,
+      portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
     },
-  };
-
-  return drag;
-}
+    {
+      portal_name: '测试门户名称2X',
+      updated_utc_datetime: 1616053686000,
+      updated_by: 1,
+      id: 9,
+      is_use: '2',
+      background_img: '',
+      uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
+      created_by: 1,
+      created_utc_datetime: 1616051161000,
+      portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
+    },
+  ],
+  systemFieldMeta: [],
+  status: 'success',
+  msg: '成功',
+};
 
 export default {
-  components: {
-    PortalBase,
-  },
-
   data() {
     return {
-      consumedWidth: CONSUMED_WIDTH,
-      border: '',
-      margin: '',
+      tableData: [],
     };
   },
 
-  mounted() {
-    this.debounceFlush = _.debounce(this.flushLayout, 300);
-    window.addEventListener('resize', this.debounceFlush);
-    this.flushLayout();
-  },
-
-  beforeDestroy() {
-    window.removeEventListener('resize', this.debounceFlush);
+  created() {
+    this.fetchTableData();
   },
 
   methods: {
-    flushLayout() {
-      const width = window.innerWidth - CONSUMED_WIDTH;
-      const border = Math.floor((width * 3.75) / 86);
-      this.border = border + 'px';
-      this.margin = Math.floor(border / 3.75 / 2) + 'px';
+    /**
+     * 请求表格数据
+     */
+    fetchTableData() {
+      /* menhuList()
+        .then((response) => {
+          const { data } = response;
+
+          if (data.code == 200) {
+            this.tableData = data.data;
+          }
+        })
+        .catch((error) => {
+          console.warn(error.message);
+        }); */
+
+      this.tableData = data.data;
     },
 
     /**
-     * 当左边单个栏目拖动结束时的处理回调
+     * 禁用门户
      */
-    onItemDragend(e) {
-      if (e.dataTransfer.dropEffect === 'copy') {
-        // const option = getComponentOption(
-        //   this.$createElement,
-        //   this.ondragstart,
-        //   this.ondragend,
-        //   this.resizeHeight,
-        //   this.resizeWidth
-        // );
-        // const optionClass = Vue.extend(option);
-        // console.log(this.$refs.LayoutPanel);
-        // const div = document.createElement('div');
-        // this.$refs.LayoutPanel.append(div);
-        // const instance = new optionClass();
-        // instance.$mount(div);
-        const Class = Vue.extend(DragItem);
-        const instance = new Class();
-        const name = e.target.innerText;
+    handleDisable(row) {
+      row = _.cloneDeep(row);
+      row['is_use'] = '2';
+      updateMenhu(row)
+        .then((response) => {
+          const { data } = response;
 
-        instance.getElement = this.getElement;
-        instance.border = this.border;
-        instance.margin = this.margin;
-        instance.consumedWidth = this.consumedWidth;
-
-        const div = document.createElement('div');
-        this.$refs.LayoutPanel.append(div);
-        instance.$mount(div);
-
-        instance.$nextTick(() => {
-          instance.$set(instance.$data, 'dragName', name);
+          if (data.code == 200) {
+            console.log(data.data);
+          }
+        })
+        .catch((error) => {
+          console.warn(error.message);
         });
-      }
-    },
-
-    getElement(value) {
-      return this.$refs[value][0];
-    },
-
-    // ------------------------ 放置区域
-
-    /**
-     * 进入
-     */
-    ondragenter(e) {
-      e.preventDefault();
-      // console.log('dragenter');
     },
 
     /**
-     * 离开
+     * 启用门户
      */
-    ondragleave(e) {
-      e.preventDefault();
-      // console.log('dragleave');
+    handleEnable(row) {
+      row = _.cloneDeep(row);
+      row['is_use'] = '1';
+      updateMenhu(row)
+        .then((response) => {
+          const { data } = response;
+
+          if (data.code == 200) {
+            console.log(data.data);
+          }
+        })
+        .catch((error) => {
+          console.warn(error.message);
+        });
+    },
+
+    createMenhu() {
+      this.$router.push('/update-portal/create');
     },
 
     /**
-     * 移动
+     * 更新门户
      */
-    ondragover(e) {
-      e.preventDefault();
-      // console.log('dragover');
+    updateMenhu({ uuid }) {
+      this.$router.push(`/update-portal/update/${uuid}`);
     },
 
     /**
-     * 完成
+     * 单元格格式化 启用/停用
      */
-    ondrop(e) {
-      e.preventDefault();
-      // console.log('drop');
-    },
-
-    handleSubmit() {
-      const element = this.$refs.LayoutPanel;
-      const nodeList = element.querySelectorAll('div.drag');
-      const dataList = [];
-      nodeList.forEach((node) => {
-        const rect = node.getBoundingClientRect();
-        const data = {
-          page_uuid: node.innerText,
-          org_level_uuid: '',
-          portal_person: '',
-          page_left_top_X: rect.left,
-          page_left_top_Y: rect.top,
-          page_right_botton_X: rect.right,
-          page_right_botton_Y: rect.bottom,
-        };
-        dataList.push(data);
-      });
-
-      console.log(dataList);
+    enableFormat({ cellValue }) {
+      if (cellValue == 1) return '启用';
+      if (cellValue == 2) return '停用';
+      return cellValue;
     },
   },
 };
 </script>
-<style lang="scss" scoped>
-div.page-list {
-  height: 100%;
-  display: flex;
-}
-
-div.layout-item {
-  width: 180px;
-  background-color: #f9f9f9;
-
-  h4 {
-    margin: 0.6em 5px;
-  }
-
-  div.item-list {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    div.item {
-      margin: 4px 0;
-      width: 80px;
-      height: 80px;
-      background-color: aqua;
-    }
-  }
-}
-
-div.main-container {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-
-  div.layout-panel {
-    flex-grow: 1;
-    position: relative;
-    overflow: auto;
-
-    ul.back {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      list-style: none;
-      justify-content: space-evenly;
-
-      li {
-        background-color: #f2f2f2;
-      }
-    }
-  }
-}
-</style>

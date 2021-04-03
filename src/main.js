@@ -4,6 +4,7 @@ import router from './router';
 import store from './store';
 
 import './plugins/element';
+import './plugins/vxe-table';
 
 Vue.config.productionTip = false;
 

@@ -27,7 +27,11 @@
   </div>
 </template>
 <script>
+import _ from 'lodash';
+
 export default {
+  props: ['data'],
+
   data() {
     return {
       formData: {
@@ -46,9 +50,26 @@ export default {
     };
   },
 
+  watch: {
+    data: {
+      deep: true,
+      immediate: true,
+      handler(object) {
+        if (object) {
+          this.formData.portal_name = object.portal_name;
+          this.formData.portal_type = object.portal_type;
+          this.formData.portal_menu = object.portal_menu;
+          this.imageUrl = object.background_img;
+        }
+      },
+    },
+  },
+
   methods: {
     handleSubmit() {
-      this.$emit('submit');
+      const data = _.cloneDeep(this.formData);
+      data['background_img'] = this.imageUrl;
+      this.$emit('submit', data);
     },
   },
 };
@@ -72,7 +93,7 @@ div.avatar-uploader {
 }
 
 img.avatar {
-  max-width: 150px;
-  max-height: 150px;
+  max-width: 135px;
+  max-height: 135px;
 }
 </style>
