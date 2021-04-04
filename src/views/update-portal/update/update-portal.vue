@@ -3,12 +3,22 @@
     <div class="layout-item">
       <h4>列表栏目</h4>
       <div class="item-list">
-        <div v-for="index of 4" :key="index" class="item" draggable="true" @dragend="onItemDragend">
-          name_{{ index }}
+        <div v-for="item of lanmuList" :key="item.uuid" class="item" draggable="true" @dragend="onItemDragend">
+          {{ item.page_name }}
         </div>
       </div>
       <h4>链接栏目</h4>
+      <div class="item-list">
+        <div v-for="item of lanmuHref" :key="item.uuid" class="item" draggable="true" @dragend="onItemDragend">
+          {{ item.page_name }}
+        </div>
+      </div>
       <h4>图表栏目</h4>
+      <div class="item-list">
+        <div v-for="item of lanmuChart" :key="item.uuid" class="item" draggable="true" @dragend="onItemDragend">
+          {{ item.page_name }}
+        </div>
+      </div>
     </div>
     <div class="main-container">
       <PortalBase :data="portalBase" @submit="handleSubmit" />
@@ -37,46 +47,10 @@ import Vue from 'vue';
 import _ from 'lodash';
 import DragItem from '../components/DragItem.vue';
 import PortalBase from '../components/PortalBase.vue';
-import { menhuData, updateMenhu } from '@/network';
+import { menhuData, updateMenhu, getLanmuByType } from '@/network';
 
 const CONSUMED_WIDTH = 360;
 const CONSUMED_HEIGHT = 147;
-
-function getComponentOption(h, dragstartHandler, dragendHandler, resizeHeight, resizeWidth) {
-  const drag = {
-    render() {
-      return h(
-        'div',
-        {
-          staticClass: 'drag',
-          attrs: {
-            draggable: true,
-          },
-          on: {
-            dragstart: dragstartHandler,
-            dragend: dragendHandler,
-          },
-        },
-        [
-          h('div', {
-            staticClass: 'horizontal',
-            on: {
-              mousedown: resizeHeight,
-            },
-          }),
-          h('div', {
-            staticClass: 'vertical',
-            on: {
-              mousedown: resizeWidth,
-            },
-          }),
-        ]
-      );
-    },
-  };
-
-  return drag;
-}
 
 export default {
   name: 'update-portal',
@@ -93,11 +67,64 @@ export default {
       scrollTop: {
         value: 0,
       },
+      lanmuList: [],
+      lanmuHref: [],
+      lanmuChart: [],
     };
   },
 
   created() {
-    this.fetchMenhuData();
+    // this.fetchMenhuData();
+
+    const data = {
+      msg: '成功',
+      code: '200',
+      data: {
+        id: 9,
+        uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
+        portal_name: '测试门户名称2X',
+        portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
+        is_use: '',
+        background_img: 'https://interactive-examples.mdn.mozilla.net/media/examples/lizard.png',
+        created_by: 1,
+        created_utc_datetime: 1616051161000,
+        updated_by: 1,
+        updated_utc_datetime: 1616053686000,
+      },
+      '~table~': 'lx_sys_portals',
+      lx_sys_portals_sub: [
+        {
+          portal_person: '',
+          org_level_uuid: '00000000-0000-0000-0000-000000000000',
+          page_uuid: 'ggggggg',
+          page_left_top_Y: 1,
+          page_right_botton_X: 3,
+          id: 1,
+          page_left_top_X: 1,
+          page_right_botton_Y: 4,
+          uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
+          portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
+        },
+        {
+          portal_person: '',
+          org_level_uuid: '00000000-0000-0000-0000-000000000000',
+          page_uuid: 'xxxx',
+          page_left_top_Y: 4,
+          page_right_botton_X: 15,
+          id: 1,
+          page_left_top_X: 6,
+          page_right_botton_Y: 15,
+          uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
+          portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
+        },
+      ],
+      status: 'success',
+    };
+
+    this.$nextTick(() => {
+      this.portalBase = data.data;
+      this.initDrag(data.lx_sys_portals_sub);
+    });
   },
 
   mounted() {
@@ -112,7 +139,7 @@ export default {
 
   methods: {
     fetchMenhuData() {
-      /* const { uuid } = this.$route.params;
+      const { uuid } = this.$route.params;
       menhuData({ '~table~': 'lx_sys_portals', uuid })
         .then(({ data }) => {
           if (data.code == 200) {
@@ -121,56 +148,37 @@ export default {
         })
         .catch((error) => {
           console.warn(error.message);
-        }); */
-      const data = {
-        msg: '成功',
-        code: '200',
-        data: {
-          id: 9,
-          uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-          portal_name: '测试门户名称2X',
-          portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
-          is_use: '',
-          background_img: 'https://interactive-examples.mdn.mozilla.net/media/examples/lizard.png',
-          created_by: 1,
-          created_utc_datetime: 1616051161000,
-          updated_by: 1,
-          updated_utc_datetime: 1616053686000,
-        },
-        '~table~': 'lx_sys_portals',
-        lx_sys_portals_sub: [
-          {
-            portal_person: '',
-            org_level_uuid: '00000000-0000-0000-0000-000000000000',
-            page_uuid: 'ggggggg',
-            page_left_top_Y: 1,
-            page_right_botton_X: 3,
-            id: 1,
-            page_left_top_X: 1,
-            page_right_botton_Y: 4,
-            uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
-            portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-          },
-          {
-            portal_person: '',
-            org_level_uuid: '00000000-0000-0000-0000-000000000000',
-            page_uuid: 'xxxx',
-            page_left_top_Y: 4,
-            page_right_botton_X: 15,
-            id: 1,
-            page_left_top_X: 6,
-            page_right_botton_Y: 15,
-            uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
-            portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-          },
-        ],
-        status: 'success',
-      };
+        });
+    },
 
-      this.$nextTick(() => {
-        this.portalBase = data.data;
-        this.refreshDrag(data.lx_sys_portals_sub);
-      });
+    fetchLanmu() {
+      getLanmuByType({ '~table~': 'lx_sys_pages', type: '1' })
+        .then(({ data }) => {
+          if (data.code == 200) {
+            this.lanmuList = data.data;
+          }
+        })
+        .catch(({ message }) => {
+          console.warn(message);
+        });
+      getLanmuByType({ '~table~': 'lx_sys_pages', type: '2' })
+        .then(({ data }) => {
+          if (data.code == 200) {
+            this.lanmuList = data.data;
+          }
+        })
+        .catch(({ message }) => {
+          console.warn(message);
+        });
+      getLanmuByType({ '~table~': 'lx_sys_pages', type: '3' })
+        .then(({ data }) => {
+          if (data.code == 200) {
+            this.lanmuList = data.data;
+          }
+        })
+        .catch(({ message }) => {
+          console.warn(message);
+        });
     },
 
     flushLayout() {
@@ -232,6 +240,34 @@ export default {
       return this.$refs[value][0];
     },
 
+    /**
+     * 将门户中已有的栏目添加到布局区域
+     * @param dragList 栏目列表
+     */
+    initDrag(dragList) {
+      dragList.forEach((item) => {
+        const mountEl = document.createElement('div');
+        this.$refs.LayoutPanel.append(mountEl);
+
+        const Class = Vue.extend(DragItem);
+        const instance = new Class();
+        instance.getElement = this.getElement;
+        instance.border = this.border;
+        instance.margin = this.margin;
+        instance.consumedWidth = CONSUMED_WIDTH;
+        instance.consumedHeight = CONSUMED_HEIGHT;
+        instance.scrollTop = this.scrollTop;
+        instance.$set(instance.$data, 'dragName', item.page_uuid);
+        instance.$set(instance.$data, 'dragRect', {
+          top: item.page_left_top_Y,
+          right: item.page_right_botton_X,
+          bottom: item.page_right_botton_Y,
+          left: item.page_left_top_X,
+        });
+        instance.$mount(mountEl);
+      });
+    },
+
     handleSubmit(portalBase) {
       console.log('基础数据', portalBase);
       const dataList = [];
@@ -275,34 +311,6 @@ export default {
         .catch(({ message }) => {
           console.warn(message);
         });
-    },
-
-    /**
-     * 将门户中已有的栏目添加到布局区域
-     * @param dragList 栏目列表
-     */
-    refreshDrag(dragList) {
-      dragList.forEach((item) => {
-        const mountEl = document.createElement('div');
-        this.$refs.LayoutPanel.append(mountEl);
-
-        const Class = Vue.extend(DragItem);
-        const instance = new Class();
-        instance.getElement = this.getElement;
-        instance.border = this.border;
-        instance.margin = this.margin;
-        instance.consumedWidth = CONSUMED_WIDTH;
-        instance.consumedHeight = CONSUMED_HEIGHT;
-        instance.scrollTop = this.scrollTop;
-        instance.$set(instance.$data, 'dragName', item.page_uuid);
-        instance.$set(instance.$data, 'dragRect', {
-          top: item.page_left_top_Y,
-          right: item.page_right_botton_X,
-          bottom: item.page_right_botton_Y,
-          left: item.page_left_top_X,
-        });
-        instance.$mount(mountEl);
-      });
     },
   },
 };

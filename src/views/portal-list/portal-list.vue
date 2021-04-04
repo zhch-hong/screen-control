@@ -15,7 +15,7 @@
           <el-button v-if="row['is_use'] == 1" size="mini" type="text" @click="handleDisable(row)">禁用</el-button>
           <el-button v-if="row['is_use'] == 2" size="mini" type="text" @click="handleEnable(row)">停用</el-button>
           <el-button size="mini" type="text" @click="updateMenhu(row)">修改</el-button>
-          <el-button size="mini" type="text">删除</el-button>
+          <el-button size="mini" type="text" @click="handleDelete(row)">删除</el-button>
         </template>
       </vxe-table-column>
     </vxe-table>
@@ -24,7 +24,7 @@
 <script>
 /* eslint-disable no-unused-vars */
 import _ from 'lodash';
-import { menhuList, updateMenhu } from '@/network';
+import { deleteMenhu, menhuList, updateMenhu } from '@/network';
 
 const data = {
   code: '200',
@@ -138,6 +138,22 @@ export default {
      */
     updateMenhu({ uuid }) {
       this.$router.push(`/update-portal/update/${uuid}`);
+    },
+
+    /**
+     * 删除门户
+     */
+    handleDelete({ uuid }) {
+      deleteMenhu({ '~table~': 'lx_sys_portals', uuid })
+        .then(({ data }) => {
+          if (data.code == 200) {
+            this.$message.success(data.msg);
+            this.fetchTableData();
+          }
+        })
+        .catch(({ message }) => {
+          console.warn(message);
+        });
     },
 
     /**
