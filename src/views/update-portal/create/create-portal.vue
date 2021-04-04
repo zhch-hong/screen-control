@@ -11,27 +11,22 @@
       <h4>图表栏目</h4>
     </div>
     <div class="main-container">
-      <PortalBase @submit="handleSubmit" />
+      <PortalBase :data="portalBase" @submit="handleSubmit" />
       <div
         ref="LayoutPanel"
         class="layout-panel"
         @drop="ondrop"
         @dragover="ondragover"
-        @dragenter="ondragenter"
-        @dragleave="ondragleave"
+        @scroll.self.prevent.stop="(e) => (scrollTop.value = e.target.scrollTop)"
       >
-        <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin} 0` }">
+        <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin}px 0` }">
           <li
             v-for="indexli in 20"
             :key="indexli"
             :ref="'REF_' + indexul + '_' + indexli"
-            :style="{ width: border, height: border }"
+            :style="{ width: border + 'px', height: border + 'px' }"
           ></li>
         </ul>
-        <!-- <div class="drag" draggable="true" @dragstart="ondragstart" @dragend="ondragend">
-        <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
-        <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
-      </div> -->
       </div>
     </div>
   </div>
@@ -42,8 +37,10 @@ import Vue from 'vue';
 import _ from 'lodash';
 import DragItem from '../components/DragItem.vue';
 import PortalBase from '../components/PortalBase.vue';
+import { menhuData, updateMenhu } from '@/network';
 
 const CONSUMED_WIDTH = 360;
+const CONSUMED_HEIGHT = 147;
 
 function getComponentOption(h, dragstartHandler, dragendHandler, resizeHeight, resizeWidth) {
   const drag = {
@@ -82,7 +79,7 @@ function getComponentOption(h, dragstartHandler, dragendHandler, resizeHeight, r
 }
 
 export default {
-  name: 'create-portal',
+  name: 'update-portal',
 
   components: {
     PortalBase,
@@ -90,14 +87,13 @@ export default {
 
   data() {
     return {
-      consumedWidth: CONSUMED_WIDTH,
-      border: '',
-      margin: '',
+      border: 0,
+      margin: 0,
+      portalBase: null,
+      scrollTop: {
+        value: 0,
+      },
     };
-  },
-
-  created() {
-    this.fetchMenhuData();
   },
 
   mounted() {
@@ -111,15 +107,20 @@ export default {
   },
 
   methods: {
-    fetchMenhuData() {
-      console.log(this.$route.params);
-    },
-
     flushLayout() {
       const width = window.innerWidth - CONSUMED_WIDTH;
       const border = Math.floor((width * 3.75) / 86);
-      this.border = border + 'px';
-      this.margin = Math.floor(border / 3.75 / 2) + 'px';
+
+      this.border = border;
+      this.margin = Math.floor(border / 3.75 / 2);
+    },
+
+    ondrop(e) {
+      e.preventDefault();
+    },
+
+    ondragover(e) {
+      e.preventDefault();
     },
 
     /**
@@ -127,87 +128,115 @@ export default {
      */
     onItemDragend(e) {
       if (e.dataTransfer.dropEffect === 'copy') {
+        // 计算处拖动到哪一个方块放置的
+        const scrollY = this.$refs.LayoutPanel.scrollTop;
+        const top = Math.ceil((e.clientY - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
+        const left = Math.ceil((e.clientX - CONSUMED_WIDTH) / (this.border + this.margin));
+
+        // 创建挂载元素
+        const mountEl = document.createElement('div');
+        this.$refs.LayoutPanel.append(mountEl);
+
+        // 创建实例，并赋值一些必须的数据，然后挂载到DOM
         const Class = Vue.extend(DragItem);
         const instance = new Class();
-        const name = e.target.innerText;
-
         instance.getElement = this.getElement;
         instance.border = this.border;
         instance.margin = this.margin;
-        instance.consumedWidth = this.consumedWidth;
-
-        const div = document.createElement('div');
-        this.$refs.LayoutPanel.append(div);
-        instance.$mount(div);
-
-        instance.$nextTick(() => {
-          instance.$set(instance.$data, 'dragName', name);
+        instance.consumedWidth = CONSUMED_WIDTH;
+        instance.consumedHeight = CONSUMED_HEIGHT;
+        instance.scrollTop = this.scrollTop;
+        instance.$set(instance.$data, 'dragName', e.target.innerText);
+        instance.$set(instance.$data, 'dragRect', {
+          top,
+          right: left,
+          bottom: top,
+          left,
         });
+        instance.$mount(mountEl);
       }
     },
 
     /**
-     * 获取拖动元素
+     * 获取布局区域某一个li元素
      * @param value ref值
-     * @returns HTMLDivElement
+     * @returns HTMLLiElement
      */
     getElement(value) {
       return this.$refs[value][0];
     },
 
-    // ------------------------ 放置区域
+    handleSubmit(portalBase) {
+      console.log('基础数据', portalBase);
+      const dataList = [];
+      const _f = Number.parseFloat;
 
-    /**
-     * 进入
-     */
-    ondragenter(e) {
-      e.preventDefault();
-      // console.log('dragenter');
-    },
-
-    /**
-     * 离开
-     */
-    ondragleave(e) {
-      e.preventDefault();
-      // console.log('dragleave');
-    },
-
-    /**
-     * 移动
-     */
-    ondragover(e) {
-      e.preventDefault();
-      // console.log('dragover');
-    },
-
-    /**
-     * 完成
-     */
-    ondrop(e) {
-      e.preventDefault();
-      // console.log('drop');
-    },
-
-    handleSubmit() {
       const element = this.$refs.LayoutPanel;
       const nodeList = element.querySelectorAll('div.drag');
-      const dataList = [];
-      nodeList.forEach((node) => {
-        const rect = node.getBoundingClientRect();
+      nodeList.forEach((element) => {
+        const start = element.getAttribute('data-start').split('-');
+        const end = element.getAttribute('data-end').split('-');
         const data = {
-          page_uuid: node.innerText,
+          uuid: '',
+          portals_uuid: '',
+          page_uuid: element.innerText,
           org_level_uuid: '',
           portal_person: '',
-          page_left_top_X: rect.left,
-          page_left_top_Y: rect.top,
-          page_right_botton_X: rect.right,
-          page_right_botton_Y: rect.bottom,
+          page_left_top_X: _f(start[0]),
+          page_left_top_Y: _f(start[1]),
+          page_right_botton_X: _f(end[0]),
+          page_right_botton_Y: _f(end[1]),
         };
         dataList.push(data);
       });
 
-      console.log(dataList);
+      const data = {
+        '~table~': 'lx_sys_portals',
+        uuid: this.portalBase.uuid,
+        portal_name: portalBase.portal_name,
+        portal_menu: portalBase.portal_menu,
+        background_img: portalBase.background_img,
+        is_use: this.portalBase.is_use,
+        lx_sys_portals_sub: dataList,
+      };
+
+      updateMenhu(data)
+        .then(({ data }) => {
+          if (data.code == 200) {
+            this.$message.success(data.msg);
+          }
+        })
+        .catch(({ message }) => {
+          console.warn(message);
+        });
+    },
+
+    /**
+     * 将门户中已有的栏目添加到布局区域
+     * @param dragList 栏目列表
+     */
+    refreshDrag(dragList) {
+      dragList.forEach((item) => {
+        const mountEl = document.createElement('div');
+        this.$refs.LayoutPanel.append(mountEl);
+
+        const Class = Vue.extend(DragItem);
+        const instance = new Class();
+        instance.getElement = this.getElement;
+        instance.border = this.border;
+        instance.margin = this.margin;
+        instance.consumedWidth = CONSUMED_WIDTH;
+        instance.consumedHeight = CONSUMED_HEIGHT;
+        instance.scrollTop = this.scrollTop;
+        instance.$set(instance.$data, 'dragName', item.page_uuid);
+        instance.$set(instance.$data, 'dragRect', {
+          top: item.page_left_top_Y,
+          right: item.page_right_botton_X,
+          bottom: item.page_right_botton_Y,
+          left: item.page_left_top_X,
+        });
+        instance.$mount(mountEl);
+      });
     },
   },
 };

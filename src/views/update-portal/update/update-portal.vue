@@ -25,7 +25,6 @@
             :key="indexli"
             :ref="'REF_' + indexul + '_' + indexli"
             :style="{ width: border + 'px', height: border + 'px' }"
-            :data-address="indexul + '-' + indexli"
           ></li>
         </ul>
       </div>
@@ -38,7 +37,7 @@ import Vue from 'vue';
 import _ from 'lodash';
 import DragItem from '../components/DragItem.vue';
 import PortalBase from '../components/PortalBase.vue';
-import { menhuData } from '@/network';
+import { menhuData, updateMenhu } from '@/network';
 
 const CONSUMED_WIDTH = 360;
 const CONSUMED_HEIGHT = 147;
@@ -235,25 +234,47 @@ export default {
 
     handleSubmit(portalBase) {
       console.log('基础数据', portalBase);
+      const dataList = [];
+      const _f = Number.parseFloat;
 
       const element = this.$refs.LayoutPanel;
       const nodeList = element.querySelectorAll('div.drag');
-      const dataList = [];
-      nodeList.forEach((node) => {
-        const rect = node.getBoundingClientRect();
+      nodeList.forEach((element) => {
+        const start = element.getAttribute('data-start').split('-');
+        const end = element.getAttribute('data-end').split('-');
         const data = {
-          page_uuid: node.innerText,
+          uuid: '',
+          portals_uuid: '',
+          page_uuid: element.innerText,
           org_level_uuid: '',
           portal_person: '',
-          page_left_top_X: rect.left,
-          page_left_top_Y: rect.top,
-          page_right_botton_X: rect.right,
-          page_right_botton_Y: rect.bottom,
+          page_left_top_X: _f(start[0]),
+          page_left_top_Y: _f(start[1]),
+          page_right_botton_X: _f(end[0]),
+          page_right_botton_Y: _f(end[1]),
         };
         dataList.push(data);
       });
 
-      console.log('布局数据', dataList);
+      const data = {
+        '~table~': 'lx_sys_portals',
+        uuid: this.portalBase.uuid,
+        portal_name: portalBase.portal_name,
+        portal_menu: portalBase.portal_menu,
+        background_img: portalBase.background_img,
+        is_use: this.portalBase.is_use,
+        lx_sys_portals_sub: dataList,
+      };
+
+      updateMenhu(data)
+        .then(({ data }) => {
+          if (data.code == 200) {
+            this.$message.success(data.msg);
+          }
+        })
+        .catch(({ message }) => {
+          console.warn(message);
+        });
     },
 
     /**

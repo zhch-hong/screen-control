@@ -12,10 +12,10 @@
       <vxe-table-column title="是否启用" field="is_use" :formatter="enableFormat"></vxe-table-column>
       <vxe-table-column title="操作">
         <template #default="{ row }">
-          <el-button v-if="row['is_use'] == 1" size="mini" @click="handleDisable(row)">禁用</el-button>
-          <el-button v-if="row['is_use'] == 2" size="mini" @click="handleEnable(row)">停用</el-button>
-          <el-button size="mini" @click="updateMenhu(row)">修改</el-button>
-          <el-button size="mini">删除</el-button>
+          <el-button v-if="row['is_use'] == 1" size="mini" type="text" @click="handleDisable(row)">禁用</el-button>
+          <el-button v-if="row['is_use'] == 2" size="mini" type="text" @click="handleEnable(row)">停用</el-button>
+          <el-button size="mini" type="text" @click="updateMenhu(row)">修改</el-button>
+          <el-button size="mini" type="text">删除</el-button>
         </template>
       </vxe-table-column>
     </vxe-table>

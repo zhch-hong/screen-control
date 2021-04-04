@@ -88,8 +88,6 @@ export default {
       e.target.style.left = rect.left - this.consumedWidth + 'px';
       e.target.style.top = rect.top + this.scrollTop.value - this.consumedHeight + 'px';
 
-      this.$el.setAttribute('data-start', li.getAttribute('data-address'));
-
       this.setAddressData();
     },
 
