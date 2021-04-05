@@ -51,6 +51,11 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/preview-portal/:uuid',
+    name: '门户预览',
+    component: () => import('@/views/preview-portal/preview-portal.vue'),
+  },
 ];
 
 const router = new VueRouter({

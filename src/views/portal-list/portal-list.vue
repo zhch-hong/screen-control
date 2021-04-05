@@ -12,6 +12,7 @@
       <vxe-table-column title="是否启用" field="is_use" :formatter="enableFormat"></vxe-table-column>
       <vxe-table-column title="操作">
         <template #default="{ row }">
+          <el-button size="mini" type="text" @click="handlePreview(row)">预览</el-button>
           <el-button v-if="row['is_use'] == 1" size="mini" type="text" @click="handleDisable(row)">禁用</el-button>
           <el-button v-if="row['is_use'] == 2" size="mini" type="text" @click="handleEnable(row)">停用</el-button>
           <el-button size="mini" type="text" @click="updateMenhu(row)">修改</el-button>
@@ -154,6 +155,14 @@ export default {
         .catch(({ message }) => {
           console.warn(message);
         });
+    },
+
+    /**
+     * 预览门户
+     */
+    handlePreview({ uuid }) {
+      console.log(this.$route);
+      console.log(uuid);
     },
 
     /**
