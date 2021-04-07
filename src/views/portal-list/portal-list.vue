@@ -12,7 +12,11 @@
       <vxe-table-column title="是否启用" field="is_use" :formatter="enableFormat"></vxe-table-column>
       <vxe-table-column title="操作">
         <template #default="{ row }">
-          <el-button size="mini" type="text" @click="handlePreview(row)">预览</el-button>
+          <el-button size="mini" type="text">
+            <router-link :to="'/preview-portal/' + row.uuid" #default="{ href }" custom>
+              <a :href="href" target="_blank" style="text-decoration-line: unset">预览</a>
+            </router-link>
+          </el-button>
           <el-button v-if="row['is_use'] == 1" size="mini" type="text" @click="handleDisable(row)">禁用</el-button>
           <el-button v-if="row['is_use'] == 2" size="mini" type="text" @click="handleEnable(row)">停用</el-button>
           <el-button size="mini" type="text" @click="updateMenhu(row)">修改</el-button>
@@ -77,17 +81,17 @@ export default {
      * 请求表格数据
      */
     fetchTableData() {
-      /* menhuList()
-        .then((response) => {
-          const { data } = response;
+      // menhuList()
+      //   .then((response) => {
+      //     const { data } = response;
 
-          if (data.code == 200) {
-            this.tableData = data.data;
-          }
-        })
-        .catch((error) => {
-          console.warn(error.message);
-        }); */
+      //     if (data.code == 200) {
+      //       this.tableData = data.data;
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.warn(error.message);
+      //   });
 
       this.tableData = data.data;
     },
@@ -155,14 +159,6 @@ export default {
         .catch(({ message }) => {
           console.warn(message);
         });
-    },
-
-    /**
-     * 预览门户
-     */
-    handlePreview({ uuid }) {
-      console.log(this.$route);
-      console.log(uuid);
     },
 
     /**
