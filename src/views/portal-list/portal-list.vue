@@ -27,43 +27,8 @@
   </div>
 </template>
 <script>
-/* eslint-disable no-unused-vars */
 import _ from 'lodash';
 import { deleteMenhu, menhuList, updateMenhu } from '@/network';
-
-const data = {
-  code: '200',
-  '~table~': 'lx_sys_portals',
-  data: [
-    {
-      portal_name: '测试门户名称1',
-      updated_utc_datetime: null,
-      updated_by: '',
-      id: 1,
-      is_use: '1',
-      background_img: '',
-      uuid: '5e1ef6a4-3018-4430-b992-24e55599c70b',
-      created_by: 1,
-      created_utc_datetime: 1616047874000,
-      portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
-    },
-    {
-      portal_name: '测试门户名称2X',
-      updated_utc_datetime: 1616053686000,
-      updated_by: 1,
-      id: 9,
-      is_use: '2',
-      background_img: '',
-      uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-      created_by: 1,
-      created_utc_datetime: 1616051161000,
-      portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
-    },
-  ],
-  systemFieldMeta: [],
-  status: 'success',
-  msg: '成功',
-};
 
 export default {
   data() {
@@ -78,22 +43,21 @@ export default {
 
   methods: {
     /**
-     * 请求表格数据
+     * 请求门户列表
      */
     fetchTableData() {
-      // menhuList()
-      //   .then((response) => {
-      //     const { data } = response;
-
-      //     if (data.code == 200) {
-      //       this.tableData = data.data;
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.warn(error.message);
-      //   });
-
-      this.tableData = data.data;
+      menhuList()
+        .then((response) => {
+          const { data } = response;
+          console.log(data);
+          if (data.code == 200) {
+            this.tableData = data.data;
+          }
+          throw new Error('xxx');
+        })
+        .catch(({ message }) => {
+          this.$error(message);
+        });
     },
 
     /**

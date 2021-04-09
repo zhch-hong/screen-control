@@ -2,6 +2,9 @@ import Axios from 'axios';
 
 const axios = Axios.create({
   baseURL: process.env.VUE_APP_HTTP_HOST,
+  headers: {
+    Token: '0123456789',
+  },
 });
 
 /**
@@ -49,4 +52,13 @@ function deleteMenhu(data) {
   return axios.post('/api/portals/delete-portals/v1', data);
 }
 
-export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu };
+/**
+ * 新增门户
+ * @param {*} data
+ * @returns
+ */
+function createMenhu(data) {
+  return axios.post('/api/portals/add-portals/v1', data);
+}
+
+export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu, createMenhu };

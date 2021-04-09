@@ -7,6 +7,8 @@ import './plugins/element';
 import './plugins/vxe-table';
 
 Vue.config.productionTip = false;
+Vue.prototype.$error = (...params) =>
+  console.error('Error=========================>>>>>>>>>>>>>>>>>>>>>>>>ERROR', ...params);
 
 new Vue({
   router,
