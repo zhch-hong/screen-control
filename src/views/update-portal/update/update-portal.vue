@@ -74,7 +74,7 @@ export default {
   },
 
   created() {
-    // this.fetchMenhuData();
+    this.fetchMenhuData();
 
     const data = {
       msg: '成功',
