@@ -7,7 +7,7 @@
     @dragstart="ondragstart"
     @dragend="ondragend"
   >
-    <span>{{ dragName }}</span>
+    <div class="name">{{ dragName }}</div>
     <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
     <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
   </div>
@@ -32,9 +32,16 @@ export default {
 
   mounted() {
     this.refreshAddress();
+    this.setUUID();
   },
 
   methods: {
+    setUUID() {
+      console.log(this.uuid);
+      this.$el.setAttribute('data-uuid', this.uuid);
+      this.$el.setAttribute('data-page_uuid', this.page_uuid);
+    },
+
     refreshAddress() {
       if (this.dragRect) {
         const top = this.dragRect.top,
@@ -208,6 +215,12 @@ div.drag {
     width: 100%;
     height: 10px;
     cursor: ns-resize;
+  }
+
+  div.name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>

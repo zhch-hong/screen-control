@@ -13,7 +13,9 @@ const axios = Axios.create({
  * @returns
  */
 function menhuList(data) {
-  return axios.post('/api/portals/list-portals/v1', data);
+  const form = new FormData();
+  form.append('formData', JSON.stringify(data));
+  return axios.post('/api/portals/list-portals/v1', form);
 }
 
 /**
@@ -22,7 +24,9 @@ function menhuList(data) {
  * @returns
  */
 function updateMenhu(data) {
-  return axios.post('/api/portals/update-portals/v1', data);
+  const form = new FormData();
+  form.append('formData', JSON.stringify(data));
+  return axios.post('/api/portals/update-portals/v1', form);
 }
 
 /**
@@ -31,7 +35,9 @@ function updateMenhu(data) {
  * @returns
  */
 function menhuData(data) {
-  return axios.post('/api/portals/find-portals/v1', data);
+  const form = new FormData();
+  form.append('formData', JSON.stringify(data));
+  return axios.post('/api/portals/find-portals/v1', form);
 }
 
 /**
@@ -40,7 +46,9 @@ function menhuData(data) {
  * @returns
  */
 function getLanmuByType(data) {
-  return axios.post('/api/pages/list-pages/v1', data);
+  const form = new FormData();
+  form.append('formData', JSON.stringify(data));
+  return axios.post('/api/pages/list-pages/v1', form);
 }
 
 /**
@@ -49,7 +57,9 @@ function getLanmuByType(data) {
  * @returns
  */
 function deleteMenhu(data) {
-  return axios.post('/api/portals/delete-portals/v1', data);
+  const form = new FormData();
+  form.append('formData', JSON.stringify(data));
+  return axios.post('/api/portals/delete-portals/v1', form);
 }
 
 /**
@@ -58,7 +68,9 @@ function deleteMenhu(data) {
  * @returns
  */
 function createMenhu(data) {
-  return axios.post('/api/portals/add-portals/v1', data);
+  const form = new FormData();
+  form.append('formData', JSON.stringify(data));
+  return axios.post('/api/portals/add-portals/v1', form);
 }
 
 export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu, createMenhu };

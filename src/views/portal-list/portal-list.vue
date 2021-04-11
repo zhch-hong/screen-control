@@ -46,14 +46,15 @@ export default {
      * 请求门户列表
      */
     fetchTableData() {
-      menhuList()
+      const params = { '~table~': 'lx_sys_portals' };
+
+      menhuList(params)
         .then((response) => {
           const { data } = response;
           console.log(data);
           if (data.code == 200) {
             this.tableData = data.data;
           }
-          throw new Error('xxx');
         })
         .catch(({ message }) => {
           this.$error(message);

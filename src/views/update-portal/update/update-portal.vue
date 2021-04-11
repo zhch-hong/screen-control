@@ -3,19 +3,43 @@
     <div class="layout-item">
       <h4>列表栏目</h4>
       <div class="item-list">
-        <div v-for="item of lanmuList" :key="item.uuid" class="item" draggable="true" @dragend="onItemDragend">
+        <div
+          v-for="item of lanmuList"
+          :key="item.uuid"
+          :data-uuid="item.uuid"
+          data-type="1"
+          class="item"
+          draggable="true"
+          @dragend="onItemDragend"
+        >
           {{ item.page_name }}
         </div>
       </div>
       <h4>链接栏目</h4>
       <div class="item-list">
-        <div v-for="item of lanmuHref" :key="item.uuid" class="item" draggable="true" @dragend="onItemDragend">
+        <div
+          v-for="item of lanmuHref"
+          :key="item.uuid"
+          :data-uuid="item.uuid"
+          data-type="2"
+          class="item"
+          draggable="true"
+          @dragend="onItemDragend"
+        >
           {{ item.page_name }}
         </div>
       </div>
       <h4>图表栏目</h4>
       <div class="item-list">
-        <div v-for="item of lanmuChart" :key="item.uuid" class="item" draggable="true" @dragend="onItemDragend">
+        <div
+          v-for="item of lanmuChart"
+          :key="item.uuid"
+          :data-uuid="item.uuid"
+          data-type="3"
+          class="item"
+          draggable="true"
+          @dragend="onItemDragend"
+        >
           {{ item.page_name }}
         </div>
       </div>
@@ -42,7 +66,6 @@
   </div>
 </template>
 <script>
-/* eslint-disable no-unused-vars */
 import Vue from 'vue';
 import _ from 'lodash';
 import DragItem from '../components/DragItem.vue';
@@ -74,57 +97,8 @@ export default {
   },
 
   created() {
+    this.fetchLanmu();
     this.fetchMenhuData();
-
-    const data = {
-      msg: '成功',
-      code: '200',
-      data: {
-        id: 9,
-        uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-        portal_name: '测试门户名称2X',
-        portal_menu: '04bea7e1-235b-494f-ac94-bbeef23f03d5',
-        is_use: '',
-        background_img: 'https://interactive-examples.mdn.mozilla.net/media/examples/lizard.png',
-        created_by: 1,
-        created_utc_datetime: 1616051161000,
-        updated_by: 1,
-        updated_utc_datetime: 1616053686000,
-      },
-      '~table~': 'lx_sys_portals',
-      lx_sys_portals_sub: [
-        {
-          portal_person: '',
-          org_level_uuid: '00000000-0000-0000-0000-000000000000',
-          page_uuid: 'ggggggg',
-          page_left_top_Y: 1,
-          page_right_botton_X: 3,
-          id: 1,
-          page_left_top_X: 1,
-          page_right_botton_Y: 4,
-          uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
-          portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-        },
-        {
-          portal_person: '',
-          org_level_uuid: '00000000-0000-0000-0000-000000000000',
-          page_uuid: 'xxxx',
-          page_left_top_Y: 4,
-          page_right_botton_X: 15,
-          id: 1,
-          page_left_top_X: 6,
-          page_right_botton_Y: 15,
-          uuid: '315e127a-e112-4a94-97d9-fee0aeb1a1f3',
-          portal_uuid: '6781cfce-e517-44c3-bee0-5163760e7624',
-        },
-      ],
-      status: 'success',
-    };
-
-    this.$nextTick(() => {
-      this.portalBase = data.data;
-      this.initDrag(data.lx_sys_portals_sub);
-    });
   },
 
   mounted() {
@@ -140,10 +114,13 @@ export default {
   methods: {
     fetchMenhuData() {
       const { uuid } = this.$route.params;
-      menhuData({ '~table~': 'lx_sys_portals', uuid })
+      const params = { '~table~': 'lx_sys_portals', uuid };
+      menhuData(params)
         .then(({ data }) => {
           if (data.code == 200) {
-            console.log(data.data);
+            console.log('门户数据', data);
+            this.portalBase = data.data;
+            this.initDrag(data.lx_sys_portals_sub);
           }
         })
         .catch((error) => {
@@ -152,8 +129,10 @@ export default {
     },
 
     fetchLanmu() {
-      getLanmuByType({ '~table~': 'lx_sys_pages', type: '1' })
+      const listParams = { '~table~': 'lx_sys_pages', type: '1' };
+      getLanmuByType(listParams)
         .then(({ data }) => {
+          console.log('列表', data);
           if (data.code == 200) {
             this.lanmuList = data.data;
           }
@@ -161,19 +140,25 @@ export default {
         .catch(({ message }) => {
           console.warn(message);
         });
-      getLanmuByType({ '~table~': 'lx_sys_pages', type: '2' })
+
+      const hrefParams = { '~table~': 'lx_sys_pages', type: '2' };
+      getLanmuByType(hrefParams)
         .then(({ data }) => {
+          console.log('链接', data);
           if (data.code == 200) {
-            this.lanmuList = data.data;
+            this.lanmuHref = data.data;
           }
         })
         .catch(({ message }) => {
           console.warn(message);
         });
-      getLanmuByType({ '~table~': 'lx_sys_pages', type: '3' })
+
+      const chartParams = { '~table~': 'lx_sys_pages', type: '3' };
+      getLanmuByType(chartParams)
         .then(({ data }) => {
+          console.log('图标', data);
           if (data.code == 200) {
-            this.lanmuList = data.data;
+            this.lanmuChart = data.data;
           }
         })
         .catch(({ message }) => {
@@ -212,10 +197,13 @@ export default {
         this.$refs.LayoutPanel.append(mountEl);
 
         // 创建实例，并赋值一些必须的数据，然后挂载到DOM
+        const uuid = e.target.getAttribute('data-uuid');
         const Class = Vue.extend(DragItem);
         const instance = new Class();
         instance.getElement = this.getElement;
         instance.border = this.border;
+        instance.uuid = '';
+        instance.page_uuid = uuid;
         instance.margin = this.margin;
         instance.consumedWidth = CONSUMED_WIDTH;
         instance.consumedHeight = CONSUMED_HEIGHT;
@@ -246,6 +234,7 @@ export default {
      */
     initDrag(dragList) {
       dragList.forEach((item) => {
+        console.log(item);
         const mountEl = document.createElement('div');
         this.$refs.LayoutPanel.append(mountEl);
 
@@ -254,6 +243,8 @@ export default {
         instance.getElement = this.getElement;
         instance.border = this.border;
         instance.margin = this.margin;
+        instance.uuid = item.uuid;
+        instance.page_uuid = item.page_uuid;
         instance.consumedWidth = CONSUMED_WIDTH;
         instance.consumedHeight = CONSUMED_HEIGHT;
         instance.scrollTop = this.scrollTop;
@@ -278,10 +269,12 @@ export default {
       nodeList.forEach((element) => {
         const start = element.getAttribute('data-start').split('-');
         const end = element.getAttribute('data-end').split('-');
+        const uuid = element.getAttribute('data-uuid');
+        const page_uuid = element.getAttribute('data-page_uuid');
         const data = {
-          uuid: '',
-          portals_uuid: '',
-          page_uuid: element.innerText,
+          uuid,
+          page_uuid,
+          portals_uuid: this.portalBase.uuid,
           org_level_uuid: '',
           portal_person: '',
           page_left_top_X: _f(start[0]),
@@ -302,14 +295,19 @@ export default {
         lx_sys_portals_sub: dataList,
       };
 
+      console.log(JSON.parse(JSON.stringify(data)));
+
       updateMenhu(data)
         .then(({ data }) => {
+          console.log(data);
           if (data.code == 200) {
             this.$message.success(data.msg);
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {
-          console.warn(message);
+          this.$message.error(message);
         });
     },
   },
