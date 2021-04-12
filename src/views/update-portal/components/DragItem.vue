@@ -120,11 +120,11 @@ export default {
 
       const left = _f(getComputedStyle(this.$el).getPropertyValue('left'));
       const width = _f(getComputedStyle(this.$el).getPropertyValue('width'));
-      const x = Math.floor((left + width) / (this.border + this.margin));
+      const x = Math.round((left + width) / (this.border + this.margin));
 
       const top = _f(getComputedStyle(this.$el).getPropertyValue('top'));
       const height = _f(getComputedStyle(this.$el).getPropertyValue('height'));
-      const y = Math.floor((top + height) / (this.border + this.margin));
+      const y = Math.round((top + height) / (this.border + this.margin));
 
       this.endAddress = `${x}-${y}`;
     },
