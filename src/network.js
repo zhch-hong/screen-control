@@ -7,15 +7,19 @@ const axios = Axios.create({
   },
 });
 
+function formdata(params) {
+  const form = new FormData();
+  form.append('formData', JSON.stringify(params));
+  return form;
+}
+
 /**
  * 门户列表
  * @param {*} data
  * @returns
  */
-function menhuList(data) {
-  const form = new FormData();
-  form.append('formData', JSON.stringify(data));
-  return axios.post('/api/portals/list-portals/v1', form);
+function menhuList(params) {
+  return axios.post('/api/portals/list-portals/v1', formdata(params));
 }
 
 /**
@@ -23,10 +27,8 @@ function menhuList(data) {
  * @param {*} data
  * @returns
  */
-function updateMenhu(data) {
-  const form = new FormData();
-  form.append('formData', JSON.stringify(data));
-  return axios.post('/api/portals/update-portals/v1', form);
+function updateMenhu(params) {
+  return axios.post('/api/portals/update-portals/v1', formdata(params));
 }
 
 /**
@@ -34,10 +36,8 @@ function updateMenhu(data) {
  * @param {*} data
  * @returns
  */
-function menhuData(data) {
-  const form = new FormData();
-  form.append('formData', JSON.stringify(data));
-  return axios.post('/api/portals/find-portals/v1', form);
+function menhuData(params) {
+  return axios.post('/api/portals/find-portals/v1', formdata(params));
 }
 
 /**
@@ -45,10 +45,8 @@ function menhuData(data) {
  * @param {*} data
  * @returns
  */
-function getLanmuByType(data) {
-  const form = new FormData();
-  form.append('formData', JSON.stringify(data));
-  return axios.post('/api/pages/list-pages/v1', form);
+function getLanmuByType(params) {
+  return axios.post('/api/pages/list-pages/v1', formdata(params));
 }
 
 /**
@@ -56,10 +54,8 @@ function getLanmuByType(data) {
  * @param {*} data
  * @returns
  */
-function deleteMenhu(data) {
-  const form = new FormData();
-  form.append('formData', JSON.stringify(data));
-  return axios.post('/api/portals/delete-portals/v1', form);
+function deleteMenhu(params) {
+  return axios.post('/api/portals/delete-portals/v1', formdata(params));
 }
 
 /**
@@ -67,10 +63,46 @@ function deleteMenhu(data) {
  * @param {*} data
  * @returns
  */
-function createMenhu(data) {
-  const form = new FormData();
-  form.append('formData', JSON.stringify(data));
-  return axios.post('/api/portals/add-portals/v1', form);
+function createMenhu(params) {
+  return axios.post('/api/portals/add-portals/v1', formdata(params));
 }
 
+/**
+ * 获取栏目列表
+ * @param {*} data
+ * @returns
+ */
+function lanmuList(params) {
+  return axios.post('/api/pages/list-pages/v1', formdata(params));
+}
+
+/**
+ * 根据栏目类型获取栏目列表
+ * @param {*} data
+ * @returns
+ */
+function lanmuListByType(params) {
+  return axios.post('/api/pages/list-pages/v1', formdata(params));
+}
+
+/**
+ * 新增栏目
+ * @param {*} params
+ * @returns
+ */
+function createLanmu(params) {
+  return axios.post('/api/pages/add-pages/v1', formdata(params));
+}
+
+/**
+ * 更新栏目
+ * @param {*} params
+ * @returns
+ */
+function updateLanmu(params) {
+  return axios.post('/api/pages/update-pages/v1', formdata(params));
+}
+
+export default axios;
 export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu, createMenhu };
+export { lanmuList, lanmuListByType, createLanmu, updateLanmu };
