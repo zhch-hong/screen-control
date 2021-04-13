@@ -3,7 +3,15 @@
     <vxe-toolbar perfect>
       <template #buttons>
         <div style="margin: 0 10px">
-          <el-button type="primary" @click="createLanmu">新增</el-button>
+          <!-- <el-button type="primary" @click="createLanmu">新增</el-button> -->
+          <el-dropdown>
+            <el-button type="primary">新增栏目<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>列表栏目</el-dropdown-item>
+              <el-dropdown-item>链接栏目</el-dropdown-item>
+              <el-dropdown-item>图表栏目</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
       </template>
       <template #tools>

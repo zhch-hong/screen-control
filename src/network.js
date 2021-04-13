@@ -14,6 +14,30 @@ function formdata(params) {
 }
 
 /**
+ * 普通查询字段
+ * @param {*} params
+ */
+function normalFields(params) {
+  const data = {
+    '~table~': 'lx_sys_dict',
+    dict_name: params,
+  };
+  return axios.post('/api/dictionary/find-dict/v1', formdata(data));
+}
+
+/**
+ * 高级查询字段
+ * @param {*} params
+ */
+function hightFields(params) {
+  const data = {
+    '~table~': 'lx_sys_prompt',
+    prompt_name: params,
+  };
+  return axios.post('/api/prompt/business/findPrompt/v1', formdata(data));
+}
+
+/**
  * 门户列表
  * @param {*} data
  * @returns
@@ -104,5 +128,6 @@ function updateLanmu(params) {
 }
 
 export default axios;
+export { normalFields, hightFields };
 export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu, createMenhu };
 export { lanmuList, lanmuListByType, createLanmu, updateLanmu };

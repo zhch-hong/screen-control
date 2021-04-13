@@ -6,13 +6,12 @@
       </el-form-item>
       <el-form-item label="类型">
         <el-select v-model="formData.portal_type">
-          <el-option label="门户" value="menhu"></el-option>
-          <el-option label="大屏" value="daping"></el-option>
+          <el-option v-for="item of portalType" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="关联菜单" style="margin-bottom: 0">
         <el-select v-model="formData.portal_menu">
-          <el-option v-for="item of menuList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-option v-for="item of portalMenu" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
@@ -28,6 +27,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { normalFields, hightFields } from '@/network';
 
 export default {
   props: ['data'],
@@ -41,12 +41,10 @@ export default {
       },
       /** 背景图url */
       imageUrl: '',
+      /** 类型下拉框数据 */
+      portalType: [],
       /** 关联菜单下拉框数据 */
-      menuList: [
-        { label: 'A', value: 'a' },
-        { label: 'B', value: 'b' },
-        { label: 'C', value: 'c' },
-      ],
+      portalMenu: [],
     };
   },
 
@@ -65,7 +63,30 @@ export default {
     },
   },
 
+  created() {
+    this.fetchPortalType();
+    this.fetchPortalMenu();
+  },
+
   methods: {
+    fetchPortalType() {
+      normalFields('portals_types').then(({ data }) => {
+        console.log(data);
+        if (data.code == 200) {
+          this.portalType = data.data;
+        }
+      });
+    },
+
+    fetchPortalMenu() {
+      hightFields('top_menus').then(({ data }) => {
+        console.log(data);
+        if (data.code == 200) {
+          this.portalMenu = data.data;
+        }
+      });
+    },
+
     handleSubmit() {
       const data = _.cloneDeep(this.formData);
       data['background_img'] = this.imageUrl;
