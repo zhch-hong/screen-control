@@ -22,7 +22,8 @@ function normalFields(params) {
     '~table~': 'lx_sys_dict',
     dict_name: params,
   };
-  return axios.post('/api/dictionary/find-dict/v1', formdata(data));
+  // return axios.post('/api/dictionary/find-dict/v1', formdata(data));
+  return axios.post('/api/dictionary/list-dictionary-byname/v1', formdata(data));
 }
 
 /**

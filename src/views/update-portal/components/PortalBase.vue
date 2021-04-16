@@ -6,12 +6,22 @@
       </el-form-item>
       <el-form-item label="类型">
         <el-select v-model="formData.portal_type">
-          <el-option v-for="item of portalType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-option
+            v-for="item of portalType"
+            :key="item.dict_value"
+            :label="item.dict_label"
+            :value="item.dict_value"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="关联菜单" style="margin-bottom: 0">
         <el-select v-model="formData.portal_menu">
-          <el-option v-for="item of portalMenu" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-option
+            v-for="item of portalMenu"
+            :key="item.uuid"
+            :label="item.view_fields"
+            :value="item.uuid"
+          ></el-option>
         </el-select>
       </el-form-item>
     </el-form>

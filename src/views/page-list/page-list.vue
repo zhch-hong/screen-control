@@ -3,13 +3,12 @@
     <vxe-toolbar perfect>
       <template #buttons>
         <div style="margin: 0 10px">
-          <!-- <el-button type="primary" @click="createLanmu">新增</el-button> -->
-          <el-dropdown>
+          <el-dropdown @command="createLanmu">
             <el-button type="primary">新增栏目<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>列表栏目</el-dropdown-item>
-              <el-dropdown-item>链接栏目</el-dropdown-item>
-              <el-dropdown-item>图表栏目</el-dropdown-item>
+              <el-dropdown-item command="list">列表栏目</el-dropdown-item>
+              <el-dropdown-item command="link">链接栏目</el-dropdown-item>
+              <el-dropdown-item command="chart">图表栏目</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
@@ -39,19 +38,30 @@
         </template>
       </vxe-table-column>
     </vxe-table>
+    <ListConfig
+      :visible="listconfigVisible"
+      @update:visible="(v) => (listconfigVisible = v)"
+      @submit="listconfigSubmit('list', $event)"
+    />
   </div>
 </template>
 <script>
 import { lanmuList, updateLanmu } from '@/network';
 
+import ListConfig from './components/ListConfig.vue';
+
 export default {
   name: 'page-list',
+
+  components: { ListConfig },
 
   data() {
     return {
       tableData: [],
       /** 下拉选择框 栏目类型 */
       lanmuType: '',
+
+      listconfigVisible: false,
     };
   },
 
@@ -72,8 +82,11 @@ export default {
         });
     },
 
-    createLanmu() {
-      console.log('新增栏目');
+    createLanmu(params) {
+      console.log('新增栏目', params);
+      if (params === 'list') {
+        this.listconfigVisible = true;
+      }
     },
 
     /**
@@ -143,6 +156,10 @@ export default {
 
     handleDelete(row) {
       console.log('删除', row);
+    },
+
+    listconfigSubmit(type, params) {
+      console.log(type, params);
     },
 
     typeFormat({ cellValue }) {
