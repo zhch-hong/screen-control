@@ -33,20 +33,22 @@
         <template #default="{ row }">
           <el-button v-if="row['is_use'] == 1" type="text" @click="handleEnable(row, 2)">停用</el-button>
           <el-button v-else type="text" @click="handleEnable(row, 1)">启用</el-button>
-          <el-button type="text" @click="updateMenhu(row)">修改</el-button>
+          <el-button type="text" @click="updateLanmu(row)">修改</el-button>
           <el-button type="text" @click="handleDelete(row)">删除</el-button>
         </template>
       </vxe-table-column>
     </vxe-table>
     <ListConfig
-      :visible="listconfigVisible"
-      @update:visible="(v) => (listconfigVisible = v)"
+      :visible="listUpdateVisible"
+      :config="updateLanmuConfig"
+      @update:visible="(v) => (listUpdateVisible = v)"
       @submit="listconfigSubmit('list', $event)"
     />
   </div>
 </template>
 <script>
-import { lanmuList, updateLanmu } from '@/network';
+import _ from 'lodash';
+import { createLanmu, lanmuList, updateLanmu } from '@/network';
 
 import ListConfig from './components/ListConfig.vue';
 
@@ -58,10 +60,12 @@ export default {
   data() {
     return {
       tableData: [],
-      /** 下拉选择框 栏目类型 */
+      /** 查询条件下拉选择框栏目类型 */
       lanmuType: '',
-
-      listconfigVisible: false,
+      /** 点击更新栏目的配置数据 */
+      updateLanmuConfig: null,
+      /** 列表栏目更新dialog */
+      listUpdateVisible: false,
     };
   },
 
@@ -85,7 +89,7 @@ export default {
     createLanmu(params) {
       console.log('新增栏目', params);
       if (params === 'list') {
-        this.listconfigVisible = true;
+        this.listUpdateVisible = true;
       }
     },
 
@@ -150,8 +154,11 @@ export default {
         });
     },
 
-    updateMenhu(row) {
-      console.log('更新', row);
+    updateLanmu(row) {
+      console.log('更新栏目', row);
+      this.updateLanmuConfig = _.cloneDeep(row);
+      const { page_type } = row;
+      if (page_type == 1) this.listUpdateVisible = true;
     },
 
     handleDelete(row) {
@@ -159,7 +166,27 @@ export default {
     },
 
     listconfigSubmit(type, params) {
-      console.log(type, params);
+      const data = Object.assign(
+        {
+          '~table~': 'lx_sys_pages',
+          page_type: type,
+          is_use: '1',
+        },
+        params
+      );
+      console.log('新增栏目', type, data);
+      createLanmu(data)
+        .then(({ data }) => {
+          console.log('新增栏目response', data);
+          if (data.code == 200) {
+            this.listUpdateVisible = false;
+          } else {
+            this.$message.error(data.msg);
+          }
+        })
+        .catch(() => {
+          //
+        });
     },
 
     typeFormat({ cellValue }) {

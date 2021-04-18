@@ -117,7 +117,6 @@ export default {
       deleteMenhu({ '~table~': 'lx_sys_portals', uuid })
         .then(({ data }) => {
           if (data.code == 200) {
-            this.$message.success(data.msg);
             this.fetchTableData();
           }
         })
