@@ -48,7 +48,7 @@
 </template>
 <script>
 import _ from 'lodash';
-import { createLanmu, lanmuList, updateLanmu } from '@/network';
+import { createLanmu, lanmuList, updateLanmu, lanmuData } from '@/network';
 
 import ListConfig from './components/ListConfig.vue';
 
@@ -155,10 +155,19 @@ export default {
     },
 
     updateLanmu(row) {
-      console.log('更新栏目', row);
-      this.updateLanmuConfig = _.cloneDeep(row);
-      const { page_type } = row;
-      if (page_type == 1) this.listUpdateVisible = true;
+      const { uuid } = row;
+
+      lanmuData({
+        '~table~': 'lx_sys_pages',
+        uuid,
+      }).then(({ data }) => {
+        if (data.code == 200) {
+          console.log('更新栏目', data);
+          this.updateLanmuConfig = _.cloneDeep(data.data);
+          const { page_type } = data.data;
+          if (page_type == 1) this.listUpdateVisible = true;
+        }
+      });
     },
 
     handleDelete(row) {
@@ -166,27 +175,37 @@ export default {
     },
 
     listconfigSubmit(type, params) {
-      const data = Object.assign(
-        {
-          '~table~': 'lx_sys_pages',
-          page_type: type,
-          is_use: '1',
-        },
-        params
-      );
-      console.log('新增栏目', type, data);
-      createLanmu(data)
-        .then(({ data }) => {
-          console.log('新增栏目response', data);
-          if (data.code == 200) {
-            this.listUpdateVisible = false;
-          } else {
-            this.$message.error(data.msg);
-          }
-        })
-        .catch(() => {
-          //
+      if (this.updateLanmuConfig) {
+        // 更新
+        const _params = _.cloneDeep(params);
+        _params['~table~'] = 'lx_sys_pages';
+
+        updateLanmu(_params).then(({ data }) => {
+          console.log('更新栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
         });
+      } else {
+        const _params = Object.assign(
+          {
+            '~table~': 'lx_sys_pages',
+            page_type: type,
+            is_use: '1',
+          },
+          params
+        );
+        createLanmu(_params)
+          .then(({ data }) => {
+            console.log('新增栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+            if (data.code == 200) {
+              this.listUpdateVisible = false;
+            } else {
+              this.$message.error(data.msg);
+            }
+          })
+          .catch(() => {
+            //
+          });
+        // 新增
+      }
     },
 
     typeFormat({ cellValue }) {

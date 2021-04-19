@@ -112,7 +112,6 @@ export default {
         } else {
           this.form = _.cloneDeep(formModel);
         }
-        console.log('dialog', this.form);
       },
     },
   },

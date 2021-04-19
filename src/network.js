@@ -120,6 +120,15 @@ function createLanmu(params) {
 }
 
 /**
+ * 栏目详情
+ * @param {*} params
+ * @returns
+ */
+function lanmuData(params) {
+  return axios.post('/api/pages/find-pages/v1', formdata(params));
+}
+
+/**
  * 更新栏目
  * @param {*} params
  * @returns
@@ -131,4 +140,4 @@ function updateLanmu(params) {
 export default axios;
 export { normalFields, hightFields };
 export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu, createMenhu };
-export { lanmuList, lanmuListByType, createLanmu, updateLanmu };
+export { lanmuList, lanmuListByType, createLanmu, updateLanmu, lanmuData };
