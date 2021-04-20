@@ -48,13 +48,13 @@
       :visible="linkUpdateVisible"
       :config="updateLanmuConfig"
       @update:visible="(v) => (linkUpdateVisible = v)"
-      @submit="linkconfigSubmit(2, $event)"
+      @submit="linkconfigSubmit(3, $event)"
     />
     <ChartConfig
       :visible="chartUpdateVisible"
       :config="updateLanmuConfig"
       @update:visible="(v) => (chartUpdateVisible = v)"
-      @submit="chartconfigSubmit(3, $event)"
+      @submit="chartconfigSubmit(2, $event)"
     />
   </div>
 </template>
@@ -77,7 +77,7 @@ export default {
       /** 查询条件下拉选择框栏目类型 */
       lanmuType: '',
 
-      /** 点击更新栏目的配置数据 */
+      /** 当前更新的栏目*/
       updateLanmuConfig: null,
 
       /** 列表栏目更新dialog */
@@ -107,7 +107,7 @@ export default {
     },
 
     createLanmu(params) {
-      console.log('新增栏目', params);
+      this.updateLanmuConfig = null;
       if (params === 'list') {
         this.listUpdateVisible = true;
       } else if (params === 'link') {
@@ -184,11 +184,12 @@ export default {
         uuid,
       }).then(({ data }) => {
         if (data.code == 200) {
+          console.log('获取栏目详情', data);
           this.updateLanmuConfig = _.cloneDeep(data.data);
           const { page_type } = data.data;
           if (page_type == 1) this.listUpdateVisible = true;
-          if (page_type == 2) this.linkUpdateVisible = true;
-          if (page_type == 3) this.chartUpdateVisible = true;
+          if (page_type == 3) this.linkUpdateVisible = true;
+          if (page_type == 2) this.chartUpdateVisible = true;
         }
       });
     },
@@ -216,7 +217,7 @@ export default {
         _params['~table~'] = 'lx_sys_pages';
 
         updateLanmu(_params).then(({ data }) => {
-          console.log('更新栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+          console.log('更新列表栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
           if (data.code == 200) {
             this.listUpdateVisible = false;
             this.fetchLanmulist();
@@ -225,6 +226,7 @@ export default {
           }
         });
       } else {
+        // 新增
         const _params = Object.assign(
           {
             '~table~': 'lx_sys_pages',
@@ -235,7 +237,7 @@ export default {
         );
         createLanmu(_params)
           .then(({ data }) => {
-            console.log('新增栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+            console.log('新增列表栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
             if (data.code == 200) {
               this.listUpdateVisible = false;
               this.fetchLanmulist();
@@ -246,7 +248,6 @@ export default {
           .catch(() => {
             //
           });
-        // 新增
       }
     },
 
@@ -260,14 +261,16 @@ export default {
         _params['~table~'] = 'lx_sys_pages';
 
         updateLanmu(_params).then(({ data }) => {
-          console.log('更新栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+          console.log('更新链接栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
           if (data.code == 200) {
-            this.listUpdateVisible = false;
+            this.fetchLanmulist();
+            this.linkUpdateVisible = false;
           } else {
             this.$message.error(data.msg);
           }
         });
       } else {
+        // 新增
         const _params = Object.assign(
           {
             '~table~': 'lx_sys_pages',
@@ -278,9 +281,10 @@ export default {
         );
         createLanmu(_params)
           .then(({ data }) => {
-            console.log('新增栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+            console.log('新增链接栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
             if (data.code == 200) {
-              this.listUpdateVisible = false;
+              this.fetchLanmulist();
+              this.linkUpdateVisible = false;
             } else {
               this.$message.error(data.msg);
             }
@@ -288,7 +292,6 @@ export default {
           .catch(() => {
             //
           });
-        // 新增
       }
     },
 
@@ -302,9 +305,16 @@ export default {
         _params['~table~'] = 'lx_sys_pages';
 
         updateLanmu(_params).then(({ data }) => {
-          console.log('更新栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+          console.log('更新图表栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+          if (data.code == 200) {
+            this.fetchLanmulist();
+            this.chartUpdateVisible = false;
+          } else {
+            this.$message.error(data.msg);
+          }
         });
       } else {
+        // 新增
         const _params = Object.assign(
           {
             '~table~': 'lx_sys_pages',
@@ -315,9 +325,10 @@ export default {
         );
         createLanmu(_params)
           .then(({ data }) => {
-            console.log('新增栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+            console.log('更新图表栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
             if (data.code == 200) {
-              this.listUpdateVisible = false;
+              this.fetchLanmulist();
+              this.chartUpdateVisible = false;
             } else {
               this.$message.error(data.msg);
             }
@@ -325,7 +336,6 @@ export default {
           .catch(() => {
             //
           });
-        // 新增
       }
     },
 
