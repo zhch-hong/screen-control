@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="visiblesync" :destroy-on-close="true">
+  <el-dialog :visible.sync="visiblesync" :destroy-on-close="true" title="列表栏目">
     <el-form ref="elForm" :model="form" label-width="100px">
       <el-form-item label="栏目名称">
         <el-input v-model="form.page_name"></el-input>

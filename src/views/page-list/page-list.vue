@@ -42,30 +42,50 @@
       :visible="listUpdateVisible"
       :config="updateLanmuConfig"
       @update:visible="(v) => (listUpdateVisible = v)"
-      @submit="listconfigSubmit('list', $event)"
+      @submit="listconfigSubmit(1, $event)"
+    />
+    <LinkConfig
+      :visible="linkUpdateVisible"
+      :config="updateLanmuConfig"
+      @update:visible="(v) => (linkUpdateVisible = v)"
+      @submit="linkconfigSubmit(2, $event)"
+    />
+    <ChartConfig
+      :visible="chartUpdateVisible"
+      :config="updateLanmuConfig"
+      @update:visible="(v) => (chartUpdateVisible = v)"
+      @submit="chartconfigSubmit(3, $event)"
     />
   </div>
 </template>
 <script>
 import _ from 'lodash';
-import { createLanmu, lanmuList, updateLanmu, lanmuData } from '@/network';
+import { createLanmu, lanmuList, updateLanmu, lanmuData, deleteLanmu } from '@/network';
 
 import ListConfig from './components/ListConfig.vue';
+import LinkConfig from './components/LinkConfig.vue';
+import ChartConfig from './components/ChartConfig.vue';
 
 export default {
   name: 'page-list',
 
-  components: { ListConfig },
+  components: { ListConfig, LinkConfig, ChartConfig },
 
   data() {
     return {
       tableData: [],
       /** 查询条件下拉选择框栏目类型 */
       lanmuType: '',
+
       /** 点击更新栏目的配置数据 */
       updateLanmuConfig: null,
+
       /** 列表栏目更新dialog */
       listUpdateVisible: false,
+      /** 链接栏目更新dialog */
+      linkUpdateVisible: false,
+      /** 图表栏目更新dialog */
+      chartUpdateVisible: false,
     };
   },
 
@@ -90,12 +110,15 @@ export default {
       console.log('新增栏目', params);
       if (params === 'list') {
         this.listUpdateVisible = true;
+      } else if (params === 'link') {
+        this.linkUpdateVisible = true;
+      } else if (params === 'chart') {
+        this.chartUpdateVisible = true;
       }
     },
 
     /**
-     * 更新栏目
-     * 更新栏目的启用/停用
+     * 启用/停用栏目
      */
     handleEnable(row, value) {
       const {
@@ -140,11 +163,10 @@ export default {
         title_name,
       };
 
-      console.log(value, JSON.parse(JSON.stringify(data)));
       updateLanmu(data)
         .then(({ data }) => {
           if (data.code == 200) {
-            this.$message.success(data.msg);
+            this.fetchLanmulist();
           } else {
             this.$message.error(data.msg);
           }
@@ -162,19 +184,118 @@ export default {
         uuid,
       }).then(({ data }) => {
         if (data.code == 200) {
-          console.log('更新栏目', data);
           this.updateLanmuConfig = _.cloneDeep(data.data);
           const { page_type } = data.data;
           if (page_type == 1) this.listUpdateVisible = true;
+          if (page_type == 2) this.linkUpdateVisible = true;
+          if (page_type == 3) this.chartUpdateVisible = true;
         }
       });
     },
 
-    handleDelete(row) {
-      console.log('删除', row);
+    handleDelete({ uuid }) {
+      deleteLanmu({
+        '~table~': 'lx_sys_pages',
+        uuid,
+      }).then(({ data }) => {
+        if (data.code == 200) {
+          this.fetchLanmulist();
+        } else {
+          this.$message.error(data.msg);
+        }
+      });
     },
 
+    /**
+     * 列表栏目配置保存
+     */
     listconfigSubmit(type, params) {
+      if (this.updateLanmuConfig) {
+        // 更新
+        const _params = _.cloneDeep(params);
+        _params['~table~'] = 'lx_sys_pages';
+
+        updateLanmu(_params).then(({ data }) => {
+          console.log('更新栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+          if (data.code == 200) {
+            this.listUpdateVisible = false;
+            this.fetchLanmulist();
+          } else {
+            this.$message.error(data.msg);
+          }
+        });
+      } else {
+        const _params = Object.assign(
+          {
+            '~table~': 'lx_sys_pages',
+            page_type: type,
+            is_use: '1',
+          },
+          params
+        );
+        createLanmu(_params)
+          .then(({ data }) => {
+            console.log('新增栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+            if (data.code == 200) {
+              this.listUpdateVisible = false;
+              this.fetchLanmulist();
+            } else {
+              this.$message.error(data.msg);
+            }
+          })
+          .catch(() => {
+            //
+          });
+        // 新增
+      }
+    },
+
+    /**
+     * 链接栏目配置保存
+     */
+    linkconfigSubmit(type, params) {
+      if (this.updateLanmuConfig) {
+        // 更新
+        const _params = _.cloneDeep(params);
+        _params['~table~'] = 'lx_sys_pages';
+
+        updateLanmu(_params).then(({ data }) => {
+          console.log('更新栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+          if (data.code == 200) {
+            this.listUpdateVisible = false;
+          } else {
+            this.$message.error(data.msg);
+          }
+        });
+      } else {
+        const _params = Object.assign(
+          {
+            '~table~': 'lx_sys_pages',
+            page_type: type,
+            is_use: '1',
+          },
+          params
+        );
+        createLanmu(_params)
+          .then(({ data }) => {
+            console.log('新增栏目', JSON.parse(JSON.stringify(_params)), JSON.parse(JSON.stringify(data)));
+            if (data.code == 200) {
+              this.listUpdateVisible = false;
+            } else {
+              this.$message.error(data.msg);
+            }
+          })
+          .catch(() => {
+            //
+          });
+        // 新增
+      }
+    },
+
+    /**
+     * 图表栏目配置保存
+     */
+    chartconfigSubmit(type, params) {
       if (this.updateLanmuConfig) {
         // 更新
         const _params = _.cloneDeep(params);
