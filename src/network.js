@@ -22,7 +22,6 @@ function normalFields(params) {
     '~table~': 'lx_sys_dict',
     dict_name: params,
   };
-  // return axios.post('/api/dictionary/find-dict/v1', formdata(data));
   return axios.post('/api/dictionary/list-dictionary-byname/v1', formdata(data));
 }
 
@@ -31,11 +30,18 @@ function normalFields(params) {
  * @param {*} params
  */
 function hightFields(params) {
-  const data = {
-    '~table~': 'lx_sys_prompt',
-    prompt_name: params,
-  };
-  return axios.post('/api/prompt/business/findPrompt/v1', formdata(data));
+  if (typeof params === 'string') {
+    const data = {
+      '~table~': 'lx_sys_prompt',
+      prompt_name: params,
+    };
+    return axios.post('/api/prompt/business/findPrompt/v1', formdata(data));
+  }
+
+  return axios.post(
+    '/api/prompt/business/findPrompt/v1',
+    formdata(Object.assign({ '~table~': 'lx_sys_prompt' }, params))
+  );
 }
 
 /**
@@ -66,15 +72,6 @@ function menhuData(params) {
 }
 
 /**
- * 根据栏目类型获取栏目列表
- * @param {*} data
- * @returns
- */
-function getLanmuByType(params) {
-  return axios.post('/api/pages/list-pages/v1', formdata(params));
-}
-
-/**
  * 删除门户
  * @param {*} data
  * @returns
@@ -102,12 +99,12 @@ function lanmuList(params) {
 }
 
 /**
- * 根据栏目类型获取栏目列表
+ * 获取栏目列表[类型筛选]
  * @param {*} data
  * @returns
  */
 function lanmuListByType(params) {
-  return axios.post('/api/pages/list-pages/v1', formdata(params));
+  return axios.post('/api/pages/list-pagesBytype/v1', formdata(params));
 }
 
 /**
@@ -148,5 +145,5 @@ function updateLanmu(params) {
 
 export default axios;
 export { normalFields, hightFields };
-export { menhuList, updateMenhu, menhuData, getLanmuByType, deleteMenhu, createMenhu };
+export { menhuList, updateMenhu, menhuData, deleteMenhu, createMenhu };
 export { lanmuList, lanmuListByType, createLanmu, updateLanmu, lanmuData, deleteLanmu };

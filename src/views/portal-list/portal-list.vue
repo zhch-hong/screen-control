@@ -24,6 +24,14 @@
         </template>
       </vxe-table-column>
     </vxe-table>
+    <vxe-pager
+      perfect
+      :current-page.sync="currentPage"
+      :page-size.sync="pageSize"
+      :total="totalResult"
+      @page-change="fetchTableData"
+    >
+    </vxe-pager>
   </div>
 </template>
 <script>
@@ -34,6 +42,10 @@ export default {
   data() {
     return {
       tableData: [],
+
+      currentPage: 1,
+      pageSize: 20,
+      totalResult: 0,
     };
   },
 
@@ -46,14 +58,13 @@ export default {
      * 请求门户列表
      */
     fetchTableData() {
-      const params = { '~table~': 'lx_sys_portals' };
-
-      menhuList(params)
+      menhuList({ '~table~': 'lx_sys_portals', pagesize: this.pageSize, cpage: this.currentPage })
         .then((response) => {
           const { data } = response;
           console.log(data);
           if (data.code == 200) {
             this.tableData = data.data;
+            this.totalResult = data.totalCount;
           }
         })
         .catch(({ message }) => {

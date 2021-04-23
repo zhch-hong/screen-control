@@ -15,7 +15,7 @@
       </template>
       <template #tools>
         <div style="margin: 0 10px">
-          <el-select v-model="lanmuType">
+          <el-select v-model="lanmuType" @change="fetchLanmulist" clearable>
             <el-option label="列表" value="1"></el-option>
             <el-option label="图表" value="2"></el-option>
             <el-option label="链接" value="3"></el-option>
@@ -38,18 +38,32 @@
         </template>
       </vxe-table-column>
     </vxe-table>
+    <vxe-pager
+      perfect
+      :current-page.sync="currentPage"
+      :page-size.sync="pageSize"
+      :total="totalResult"
+      @page-change="fetchLanmulist"
+    >
+    </vxe-pager>
+
+    <!-- 列表配置 -->
     <ListConfig
       :visible="listUpdateVisible"
       :config="updateLanmuConfig"
       @update:visible="(v) => (listUpdateVisible = v)"
       @submit="listconfigSubmit(1, $event)"
     />
+
+    <!-- 链接配置 -->
     <LinkConfig
       :visible="linkUpdateVisible"
       :config="updateLanmuConfig"
       @update:visible="(v) => (linkUpdateVisible = v)"
       @submit="linkconfigSubmit(3, $event)"
     />
+
+    <!-- 图表配置 -->
     <ChartConfig
       :visible="chartUpdateVisible"
       :config="updateLanmuConfig"
@@ -60,7 +74,7 @@
 </template>
 <script>
 import _ from 'lodash';
-import { createLanmu, lanmuList, updateLanmu, lanmuData, deleteLanmu } from '@/network';
+import { createLanmu, lanmuList, lanmuListByType, updateLanmu, lanmuData, deleteLanmu } from '@/network';
 
 import ListConfig from './components/ListConfig.vue';
 import LinkConfig from './components/LinkConfig.vue';
@@ -74,8 +88,13 @@ export default {
   data() {
     return {
       tableData: [],
+
       /** 查询条件下拉选择框栏目类型 */
       lanmuType: '',
+
+      currentPage: 1,
+      pageSize: 20,
+      totalResult: 0,
 
       /** 当前更新的栏目*/
       updateLanmuConfig: null,
@@ -95,15 +114,34 @@ export default {
 
   methods: {
     fetchLanmulist() {
-      lanmuList({ '~table~': 'lx_sys_pages' })
-        .then(({ data }) => {
-          if (data.code == 200) {
-            this.tableData = data.data;
-          }
+      if (this.lanmuType) {
+        lanmuListByType({
+          '~table~': 'lx_sys_pages',
+          page_type: this.lanmuType,
+          pagesize: this.pageSize,
+          cpage: this.currentPage,
         })
-        .catch(({ message }) => {
-          this.$error(message);
-        });
+          .then(({ data }) => {
+            if (data.code == 200) {
+              this.tableData = data.data;
+              this.totalResult = data.totalCount;
+            }
+          })
+          .catch(({ message }) => {
+            this.$error(message);
+          });
+      } else {
+        lanmuList({ '~table~': 'lx_sys_pages', pagesize: this.pageSize, cpage: this.currentPage })
+          .then(({ data }) => {
+            if (data.code == 200) {
+              this.tableData = data.data;
+              this.totalResult = data.totalCount;
+            }
+          })
+          .catch(({ message }) => {
+            this.$error(message);
+          });
+      }
     },
 
     createLanmu(params) {

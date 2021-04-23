@@ -5,7 +5,7 @@
         <el-input v-model="form.page_name"></el-input>
       </el-form-item>
       <el-form-item label="数据源">
-        <el-select v-model="form.data_source">
+        <el-select v-model="form.data_source" @change="fetchColumnName">
           <el-option
             v-for="item of shujuyuanList"
             :key="item.value_field"
@@ -17,7 +17,7 @@
       <el-form-item label="显示列名">
         <el-select v-model="form.show_column_name">
           <el-option
-            v-for="(item, index) of shujuyuanList"
+            v-for="(item, index) of columnNameList"
             :key="index"
             :label="item.label"
             :value="item.value"
@@ -138,7 +138,18 @@ export default {
      * 请求显示列名
      */
     fetchColumnName() {
-      hightFields('relation_field').then(({ data }) => {
+      const params = {
+        prompt_name: 'data_source_field',
+        datasource_uuid: '0aae05ea-632c-42d3-9670-e8fc17a2b367',
+      };
+
+      // const result = this.shujuyuanList.find((item) => item.value_field === this.form.data_source);
+
+      // if (result) {
+      //   params.datasource_uuid = result.uuid;
+      // }
+
+      hightFields(params).then(({ data }) => {
         console.log('显示列名', data);
         if (data.code == 200) {
           this.columnNameList = data.data;

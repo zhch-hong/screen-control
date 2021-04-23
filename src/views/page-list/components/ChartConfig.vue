@@ -42,6 +42,7 @@
 </template>
 <script>
 import _ from 'lodash';
+import { hightFields } from '@/network';
 
 const formModel = {
   page_name: '',
@@ -64,7 +65,7 @@ export default {
   data() {
     return {
       form: _.cloneDeep(formModel),
-      /** 链接地址下拉框 */
+      /** 图表名称下拉框 */
       nameList: [],
     };
   },
@@ -95,10 +96,18 @@ export default {
   },
 
   created() {
-    //
+    this.fetchNameList();
   },
 
   methods: {
+    fetchNameList() {
+      hightFields('table_name').then(({ data }) => {
+        if (data.code == 200) {
+          this.nameList = data.data;
+        }
+      });
+    },
+
     submit() {
       this.$emit('submit', this.form);
     },

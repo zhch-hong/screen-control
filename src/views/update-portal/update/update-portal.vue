@@ -70,7 +70,7 @@ import Vue from 'vue';
 import _ from 'lodash';
 import DragItem from '../components/DragItem.vue';
 import PortalBase from '../components/PortalBase.vue';
-import { menhuData, updateMenhu, getLanmuByType } from '@/network';
+import { menhuData, updateMenhu, lanmuListByType } from '@/network';
 
 const CONSUMED_WIDTH = 360;
 const CONSUMED_HEIGHT = 147;
@@ -130,7 +130,7 @@ export default {
 
     fetchLanmu() {
       const listParams = { '~table~': 'lx_sys_pages', type: '1' };
-      getLanmuByType(listParams)
+      lanmuListByType(listParams)
         .then(({ data }) => {
           console.log('列表', data);
           if (data.code == 200) {
@@ -142,7 +142,7 @@ export default {
         });
 
       const hrefParams = { '~table~': 'lx_sys_pages', type: '2' };
-      getLanmuByType(hrefParams)
+      lanmuListByType(hrefParams)
         .then(({ data }) => {
           console.log('链接', data);
           if (data.code == 200) {
@@ -154,7 +154,7 @@ export default {
         });
 
       const chartParams = { '~table~': 'lx_sys_pages', type: '3' };
-      getLanmuByType(chartParams)
+      lanmuListByType(chartParams)
         .then(({ data }) => {
           console.log('图标', data);
           if (data.code == 200) {

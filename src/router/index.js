@@ -38,7 +38,7 @@ const routes = [
     ],
   },
   {
-    path: '/portal-list',
+    path: '/page-list',
     component: Layout,
     children: [
       {
