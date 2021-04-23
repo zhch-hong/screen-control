@@ -16,22 +16,41 @@
       </el-form-item>
     </el-form>
     <el-divider></el-divider>
-    <div>
-      <el-checkbox v-model="form.is_refresh_button" :true-label="1" :false-label="0">是否显示刷新按钮</el-checkbox>
-      <el-checkbox v-model="form.is_show_underline" :true-label="1" :false-label="0"
-        >是否显示默认标题下面的横线</el-checkbox
-      >
+    <div class="check-group">
+      <div>
+        <el-checkbox v-model="form.is_refresh_button" :true-label="1" :false-label="0">是否显示刷新按钮</el-checkbox>
+      </div>
+      <div>
+        <el-checkbox v-model="form.is_show_underline" :true-label="1" :false-label="0"
+          >是否显示默认标题下面的横线</el-checkbox
+        >
+      </div>
       <div>
         <el-checkbox v-model="form.is_more_button" :true-label="1" :false-label="0">是否显示更多按钮</el-checkbox>
-        <el-input v-model="form.click_view_more" placeholder="点击更多URL"></el-input>
+        <el-input
+          v-model="form.click_view_more"
+          size="small"
+          style="width: 25vw; margin-left: 2vw"
+          placeholder="点击更多URL"
+        ></el-input>
       </div>
       <div>
         <el-checkbox v-model="form.is_add_button" :true-label="1" :false-label="0">是否显示新增按钮</el-checkbox>
-        <el-input v-model="form.new_url" placeholder="点击新增URL"></el-input>
+        <el-input
+          v-model="form.new_url"
+          size="small"
+          style="width: 25vw; margin-left: 2vw"
+          placeholder="点击新增URL"
+        ></el-input>
       </div>
       <div>
         <el-checkbox v-model="form.is_show_title" :true-label="1" :false-label="0">是否显示标题</el-checkbox>
-        <el-input v-model="form.title_name" placeholder="标题名称"></el-input>
+        <el-input
+          v-model="form.title_name"
+          size="small"
+          style="width: 25vw; margin-left: 2vw"
+          placeholder="标题名称"
+        ></el-input>
       </div>
     </div>
     <template #footer>
@@ -114,3 +133,12 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.check-group {
+  display: flex;
+  flex-direction: column;
+  & > div {
+    margin: 10px 0;
+  }
+}
+</style>
