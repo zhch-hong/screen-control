@@ -129,7 +129,7 @@ export default {
     },
 
     fetchLanmu() {
-      const listParams = { '~table~': 'lx_sys_pages', type: '1' };
+      const listParams = { '~table~': 'lx_sys_pages', page_type: '1', pagesize: 20, cpage: 1 };
       lanmuListByType(listParams)
         .then(({ data }) => {
           console.log('列表', data);
@@ -141,7 +141,7 @@ export default {
           console.warn(message);
         });
 
-      const hrefParams = { '~table~': 'lx_sys_pages', type: '2' };
+      const hrefParams = { '~table~': 'lx_sys_pages', page_type: '2', pagesize: 20, cpage: 1 };
       lanmuListByType(hrefParams)
         .then(({ data }) => {
           console.log('链接', data);
@@ -153,7 +153,7 @@ export default {
           console.warn(message);
         });
 
-      const chartParams = { '~table~': 'lx_sys_pages', type: '3' };
+      const chartParams = { '~table~': 'lx_sys_pages', page_type: '3', pagesize: 20, cpage: 1 };
       lanmuListByType(chartParams)
         .then(({ data }) => {
           console.log('图标', data);
