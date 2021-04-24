@@ -249,6 +249,7 @@ export default {
           console.log(data);
           if (data.code == 200) {
             this.$message.success(data.msg);
+            this.$router.push('/');
           } else {
             this.$message.warning(data.msg);
           }
