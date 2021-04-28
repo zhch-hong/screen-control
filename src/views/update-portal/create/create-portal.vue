@@ -208,7 +208,7 @@ export default {
      * @returns HTMLLiElement
      */
     getElement(value) {
-      return this.$refs[value][0];
+      if (this.$refs[value]) return this.$refs[value][0];
     },
 
     handleSubmit(portalBase) {

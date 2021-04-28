@@ -90,6 +90,9 @@ export default {
       const col = left / len;
 
       const li = this.getElement('REF_' + Math.ceil(row) + '_' + Math.ceil(col));
+
+      if (!li) return;
+
       const rect = li.getBoundingClientRect();
 
       e.target.style.left = rect.left - this.consumedWidth + 'px';
@@ -101,6 +104,10 @@ export default {
     setAddressData() {
       this.setStartAddress();
       this.setEndAddress();
+      this.$nextTick(() => {
+        this.overflowXFix();
+        this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+      });
     },
 
     setStartAddress() {
@@ -127,6 +134,22 @@ export default {
       const y = Math.round((top + height) / (this.border + this.margin));
 
       this.endAddress = `${x}-${y}`;
+    },
+
+    /**
+     * 判断元素是否超出右边界
+     * 如果宽度超出了右边界，则将缩减宽度至最右边，20
+     */
+    overflowXFix() {
+      let lx = this.$el.getAttribute('data-start').split('-')[0];
+      let rx = this.$el.getAttribute('data-end').split('-')[0];
+
+      if (rx > 20) {
+        const rby = this.$el.getAttribute('data-end').split('-')[1];
+        const w = (20 - lx + 1) * this.border + (20 - lx) * this.margin;
+        this.$el.style.width = w + 'px';
+        this.endAddress = `${20}-${rby}`;
+      }
     },
 
     resizeWidth(e) {
