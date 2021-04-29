@@ -4,7 +4,9 @@
   </el-scrollbar>
 </template>
 <script>
+import Vue from 'vue';
 import { lanmuData, menhuData } from '@/network';
+import RenderWrap from './RenderWrap.vue';
 
 const LM_LIST = [
   {
@@ -107,7 +109,14 @@ export default {
       height: '',
       borderLength: getBorderLength(),
       lanmuList: [],
+      pathLink: '',
     };
+  },
+
+  watch: {
+    pathLink(value) {
+      console.log(value);
+    },
   },
 
   mounted() {
@@ -143,13 +152,21 @@ export default {
       const preview = this.$refs.preview;
       this.height = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y)) * this.borderLength + 'px';
 
-      this.lanmuList.forEach((LM) => {
+      this.lanmuList.forEach((LM, index) => {
         const div = document.createElement('div');
         const divIn = document.createElement('div');
+        const mountEl = document.createElement('div');
         div.append(divIn);
+        divIn.append(mountEl);
         preview.append(div);
         this.setContainer(divIn);
         this.setAddress(div, LM);
+
+        const cls = Vue.extend(RenderWrap);
+        const instance = new cls();
+        if (index % 2 === 0) instance.path = 'OneCom.vue';
+        else instance.path = 'TwoCom.vue';
+        instance.$mount(mountEl);
       });
     },
 
