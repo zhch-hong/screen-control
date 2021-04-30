@@ -37,7 +37,6 @@ export default {
 
   methods: {
     setUUID() {
-      console.log(this.uuid);
       this.$el.setAttribute('data-uuid', this.uuid);
       this.$el.setAttribute('data-page_uuid', this.page_uuid);
     },

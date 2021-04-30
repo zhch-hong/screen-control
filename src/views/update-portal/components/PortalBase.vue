@@ -81,7 +81,6 @@ export default {
   methods: {
     fetchPortalType() {
       normalFields('portals_types').then(({ data }) => {
-        console.log(data);
         if (data.code == 200) {
           this.portalType = data.data;
         }
@@ -90,7 +89,6 @@ export default {
 
     fetchPortalMenu() {
       hightFields('top_menus').then(({ data }) => {
-        console.log(data);
         if (data.code == 200) {
           this.portalMenu = data.data;
         }

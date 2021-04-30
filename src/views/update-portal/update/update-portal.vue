@@ -156,7 +156,7 @@ export default {
       const chartParams = { '~table~': 'lx_sys_pages', page_type: '3', pagesize: 20, cpage: 1 };
       lanmuListByType(chartParams)
         .then(({ data }) => {
-          console.log('图标', data);
+          console.log('图表', data);
           if (data.code == 200) {
             this.lanmuChart = data.data;
           }
@@ -234,7 +234,7 @@ export default {
      */
     initDrag(dragList) {
       dragList.forEach((item) => {
-        console.log(item);
+        console.log('添加已有栏目', item);
         const mountEl = document.createElement('div');
         this.$refs.LayoutPanel.append(mountEl);
 
@@ -257,13 +257,12 @@ export default {
         });
         instance.$mount(mountEl);
         instance.$on('dragend', (address) => {
-          console.log(address);
+          console.log('拖动结束', address);
         });
       });
     },
 
     handleSubmit(portalBase) {
-      console.log('基础数据', portalBase);
       const dataList = [];
       const _f = Number.parseFloat;
 
@@ -288,7 +287,7 @@ export default {
         dataList.push(data);
       });
 
-      const data = {
+      const params = {
         '~table~': 'lx_sys_portals',
         uuid: this.portalBase.uuid,
         portal_name: portalBase.portal_name,
@@ -298,11 +297,9 @@ export default {
         lx_sys_portals_sub: dataList,
       };
 
-      console.log(JSON.parse(JSON.stringify(data)));
-
-      updateMenhu(data)
+      updateMenhu(params)
         .then(({ data }) => {
-          console.log(data);
+          console.log('更新门户', JSON.parse(JSON.stringify(params)), data);
           if (data.code == 200) {
             this.$message.success(data.msg);
             this.$router.push('/');
