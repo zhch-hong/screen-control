@@ -90,6 +90,12 @@ export default {
       scrollTop: {
         value: 0,
       },
+
+      /**
+       * 门户中栏目块的位置
+       */
+      dragendItemMap: {},
+
       lanmuList: [],
       lanmuHref: [],
       lanmuChart: [],
@@ -183,6 +189,15 @@ export default {
     },
 
     /**
+     * 获取布局区域某一个li元素
+     * @param value ref值
+     * @returns HTMLLiElement
+     */
+    getElement(value) {
+      if (this.$refs[value]) return this.$refs[value][0];
+    },
+
+    /**
      * 当左边单个栏目拖动结束时的处理回调
      */
     onItemDragend(e) {
@@ -216,16 +231,11 @@ export default {
           left,
         });
         instance.$mount(mountEl);
+        instance.$on('dragend', (address) => {
+          this.dragendItemMap[uuid] = address;
+          console.log(this.isIntersectionRect());
+        });
       }
-    },
-
-    /**
-     * 获取布局区域某一个li元素
-     * @param value ref值
-     * @returns HTMLLiElement
-     */
-    getElement(value) {
-      if (this.$refs[value]) return this.$refs[value][0];
     },
 
     /**
@@ -257,9 +267,52 @@ export default {
         });
         instance.$mount(mountEl);
         instance.$on('dragend', (address) => {
-          console.log('拖动结束', address);
+          this.dragendItemMap[item.page_uuid] = address;
+          console.log(this.isIntersectionRect());
         });
       });
+    },
+
+    /**
+     * 判断栏目之间是否存在交叉重叠
+     */
+    isIntersectionRect() {
+      console.log('===', this.dragendItemMap);
+      console.log('---', Object.values(this.dragendItemMap));
+      const array = _.cloneDeep(Object.values(this.dragendItemMap));
+      console.log(array);
+      const intersection = (o, t) => {
+        const osx = o[0].split('-')[0] * 1;
+        const osy = o[0].split('-')[1] * 1;
+        const oex = o[1].split('-')[0] * 1;
+        const oey = o[1].split('-')[1] * 1;
+        const tsx = t[0].split('-')[0] * 1;
+        const tsy = t[0].split('-')[1] * 1;
+        const tex = t[1].split('-')[0] * 1;
+        const tey = t[1].split('-')[1] * 1;
+
+        if (tsx > oex || tex > osx || osy > tey || oey > tsy) {
+          return false;
+        }
+
+        return true;
+      };
+      const isFind = (source, target) => {
+        let b = false;
+        const i = target.findIndex((item) => intersection(source, item));
+        if (i !== -1) {
+          b = true;
+        } else {
+          if (target.length > 1) {
+            const s = target.shift();
+            return isFind(s, target);
+          }
+        }
+
+        return b;
+      };
+      const s = array.shift();
+      return isFind(s, array);
     },
 
     handleSubmit(portalBase) {
