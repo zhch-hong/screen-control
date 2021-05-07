@@ -200,9 +200,9 @@ export default {
     /**
      * 当左边单个栏目拖动结束时的处理回调
      */
-    onItemDragend(e) {
+    async onItemDragend(e) {
       if (e.dataTransfer.dropEffect === 'copy') {
-        // 计算处拖动到哪一个方块放置的
+        // 计算出拖动到哪一个方块放置的
         const scrollY = this.$refs.LayoutPanel.scrollTop;
         const top = Math.ceil((e.clientY - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
         const left = Math.ceil((e.clientX - CONSUMED_WIDTH) / (this.border + this.margin));
@@ -231,10 +231,16 @@ export default {
           left,
         });
         instance.$mount(mountEl);
+
+        this.dragendItemMap[uuid] = [`${left}-${top}`, `${left}-${top}`];
         instance.$on('dragend', (address) => {
           this.dragendItemMap[uuid] = address;
-          console.log(this.isIntersectionRect());
+          this.isIntersectionRect();
         });
+
+        setTimeout(() => {
+          console.log(this.isIntersectionRect());
+        }, 1000);
       }
     },
 
@@ -266,13 +272,16 @@ export default {
           left: item.page_left_top_X,
         });
         instance.$mount(mountEl);
+
+        this.dragendItemMap[item.page_uuid] = [
+          `${item.page_left_top_X}-${item.page_left_top_Y}`,
+          `${item.page_right_botton_X}-${item.page_right_botton_Y}`,
+        ];
         instance.$on('dragend', (address) => {
           this.dragendItemMap[item.page_uuid] = address;
+          this.isIntersectionRect();
         });
       });
-      setTimeout(() => {
-        this.isIntersectionRect();
-      }, 1000);
     },
 
     /**
@@ -282,7 +291,6 @@ export default {
       console.log(Object.values(this.dragendItemMap));
       const array = _.cloneDeep(Object.values(this.dragendItemMap));
       const intersection = (o, t) => {
-        console.log(o, t);
         const osx = o[0].split('-')[0] * 1;
         const osy = o[0].split('-')[1] * 1;
         const oex = o[1].split('-')[0] * 1;

@@ -98,15 +98,14 @@ export default {
       e.target.style.top = rect.top + this.scrollTop.value - this.consumedHeight + 'px';
 
       this.setAddressData();
+
+      this.overflowXFix();
+      this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
     },
 
     setAddressData() {
       this.setStartAddress();
       this.setEndAddress();
-      this.$nextTick(() => {
-        this.overflowXFix();
-        this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
-      });
     },
 
     setStartAddress() {
