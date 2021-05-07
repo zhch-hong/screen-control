@@ -5,9 +5,11 @@
 </template>
 <script>
 import Vue from 'vue';
+/* eslint-disable no-unused-vars */
 import { lanmuData, menhuData } from '@/network';
 import RenderWrap from './RenderWrap.vue';
 
+// eslint-disable-next-line no-unused-vars
 const LM_LIST = [
   {
     portal_person: '',
@@ -131,19 +133,22 @@ export default {
       menhuData({ '~table~': 'lx_sys_portals', uuid }).then(({ data }) => {
         if (data.code == 200) {
           console.log('门户数据', data);
-          const promises = [];
-          data.lx_sys_portals_sub.forEach((lm) => {
-            promises.push(lanmuData({ uuid: lm.uuid, '~table~': 'lx_sys_pages' }));
-          });
 
-          Promise.all(promises).then((array) => {
-            console.log('门户栏目', array);
+          this.lanmuList = data.lx_sys_portals_sub;
+          this.refreshLayout();
 
-            // this.lanmuList = array.map((item) => item.data);
-            this.lanmuList = LM_LIST;
+          // const promises = [];
+          // data.lx_sys_portals_sub.forEach((lm) => {
+          //   promises.push(lanmuData({ uuid: lm.uuid, '~table~': 'lx_sys_pages' }));
+          // });
 
-            this.refreshLayout();
-          });
+          // Promise.all(promises).then((array) => {
+          //   console.log('门户栏目', array);
+
+          //   this.lanmuList = array.map((item) => item.data);
+
+          //   this.refreshLayout();
+          // });
         }
       });
     },

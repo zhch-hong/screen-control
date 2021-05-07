@@ -348,6 +348,7 @@ export default {
         uuid: this.portalBase.uuid,
         portal_name: portalBase.portal_name,
         portal_menu: portalBase.portal_menu,
+        portal_type: portalBase.portal_type,
         background_img: portalBase.background_img,
         is_use: this.portalBase.is_use,
         lx_sys_portals_sub: dataList,
