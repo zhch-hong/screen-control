@@ -11,7 +11,7 @@ export default {
   },
 
   created() {
-    this.comp = (resolve) => require(['@/components/' + this.path], resolve);
+    this.comp = (resolve) => require(['@/views/system' + this.path + '.vue'], resolve);
   },
 };
 </script>

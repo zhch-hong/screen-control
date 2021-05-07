@@ -268,20 +268,21 @@ export default {
         instance.$mount(mountEl);
         instance.$on('dragend', (address) => {
           this.dragendItemMap[item.page_uuid] = address;
-          console.log(this.isIntersectionRect());
         });
       });
+      setTimeout(() => {
+        this.isIntersectionRect();
+      }, 1000);
     },
 
     /**
      * 判断栏目之间是否存在交叉重叠
      */
     isIntersectionRect() {
-      console.log('===', this.dragendItemMap);
-      console.log('---', Object.values(this.dragendItemMap));
+      console.log(Object.values(this.dragendItemMap));
       const array = _.cloneDeep(Object.values(this.dragendItemMap));
-      console.log(array);
       const intersection = (o, t) => {
+        console.log(o, t);
         const osx = o[0].split('-')[0] * 1;
         const osy = o[0].split('-')[1] * 1;
         const oex = o[1].split('-')[0] * 1;
@@ -291,7 +292,7 @@ export default {
         const tex = t[1].split('-')[0] * 1;
         const tey = t[1].split('-')[1] * 1;
 
-        if (tsx > oex || tex > osx || osy > tey || oey > tsy) {
+        if (osx > tex || osy > tey || oex > tsx || oey > tsy) {
           return false;
         }
 
@@ -299,11 +300,13 @@ export default {
       };
       const isFind = (source, target) => {
         let b = false;
-        const i = target.findIndex((item) => intersection(source, item));
+        const i = target.findIndex((item) => {
+          return intersection(source, item);
+        });
         if (i !== -1) {
           b = true;
         } else {
-          if (target.length > 1) {
+          if (target.length > 0) {
             const s = target.shift();
             return isFind(s, target);
           }
