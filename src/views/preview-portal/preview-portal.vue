@@ -164,8 +164,8 @@ export default {
 
         const cls = Vue.extend(RenderWrap);
         const instance = new cls();
-        if (index % 2 === 0) instance.path = 'OneCom.vue';
-        else instance.path = 'TwoCom.vue';
+        if (index % 2 === 0) instance.path = '/OneCom';
+        else instance.path = '/TwoCom';
         instance.$mount(mountEl);
       });
     },
