@@ -12,7 +12,9 @@
           draggable="true"
           @dragend="onItemDragend"
         >
-          {{ item.page_name }}
+          <span>
+            {{ item.page_name }}
+          </span>
         </div>
       </div>
       <h4>链接栏目</h4>
@@ -26,7 +28,9 @@
           draggable="true"
           @dragend="onItemDragend"
         >
-          {{ item.page_name }}
+          <span>
+            {{ item.page_name }}
+          </span>
         </div>
       </div>
       <h4>图表栏目</h4>
@@ -40,7 +44,9 @@
           draggable="true"
           @dragend="onItemDragend"
         >
-          {{ item.page_name }}
+          <span>
+            {{ item.page_name }}
+          </span>
         </div>
       </div>
     </div>
@@ -412,17 +418,23 @@ div.layout-item {
   }
 
   div.item-list {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
     div.item {
-      margin: 4px 0;
+      position: relative;
+      margin: 4px;
       width: 80px;
       height: 80px;
-      background-color: aqua;
+      background-color: rgba(64, 158, 255, 0.8);
+      border-radius: 2px;
+      display: inline-block;
+      & > span {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        color: white;
+        white-space: nowrap;
+      }
     }
   }
 }
