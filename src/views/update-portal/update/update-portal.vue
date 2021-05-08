@@ -86,6 +86,12 @@ const CONSUMED_HEIGHT = 147;
  */
 const dragendItemMap = {};
 
+/**
+ * 如果将门户中已有的栏目删除
+ * 就添加到这个数组中，保存门户数据时，需要将这些数据传回去
+ */
+const removeAlreadyLanmu = [];
+
 export default {
   name: 'update-portal',
 
@@ -251,6 +257,12 @@ export default {
           }
         });
 
+        instance.$on('remove', () => {
+          instance.$el.remove();
+          instance.$destroy();
+          delete dragendItemMap[uuid];
+        });
+
         await this.$nextTick();
 
         if (this.isIntersectionRect()) {
@@ -305,6 +317,16 @@ export default {
             this.$message.error('栏目交错');
             instance.resetToPre();
           }
+        });
+
+        instance.$on('remove', () => {
+          const clone = _.cloneDeep(item);
+          clone['~type~'] = 'del';
+          removeAlreadyLanmu.push(clone);
+
+          instance.$el.remove();
+          instance.$destroy();
+          delete dragendItemMap[item.page_uuid];
         });
       });
     },
@@ -374,6 +396,8 @@ export default {
         };
         dataList.push(data);
       });
+
+      dataList.push(...removeAlreadyLanmu);
 
       const params = {
         '~table~': 'lx_sys_portals',

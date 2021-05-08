@@ -7,6 +7,7 @@
     @dragstart="ondragstart"
     @dragend="ondragend"
   >
+    <i class="el-icon-delete delete" title="删除栏目" @click="$emit('remove')"></i>
     <div class="name">{{ dragName }}</div>
     <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
     <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
@@ -85,21 +86,6 @@ export default {
       this.setAddressData();
     },
 
-    ondragstart(e) {
-      UNRELATED.offsetX = e.offsetX;
-      UNRELATED.offsetY = e.offsetY;
-
-      // 为resetToPre方法做数据铺垫
-      // 记录拖动前的位置，如果拖动后出现栏目交错，需要将这些数据还原
-      const target = e.target;
-      beforeDragAddress.start = target.getAttribute('data-start');
-      beforeDragAddress.end = target.getAttribute('data-end');
-      beforeDragAddress.top = getComputedStyle(target).getPropertyValue('top');
-      beforeDragAddress.left = getComputedStyle(target).getPropertyValue('left');
-      beforeDragAddress.width = getComputedStyle(target).getPropertyValue('width');
-      beforeDragAddress.height = getComputedStyle(target).getPropertyValue('height');
-    },
-
     /**
      * 重置当前栏目到上一次的状态
      * 用于拖动结束时与其他栏目发生交错的情况下还原到之前的状态
@@ -113,6 +99,21 @@ export default {
       this.$el.style.height = beforeDragAddress.height;
 
       this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+    },
+
+    ondragstart(e) {
+      UNRELATED.offsetX = e.offsetX;
+      UNRELATED.offsetY = e.offsetY;
+
+      // 为resetToPre方法做数据铺垫
+      // 记录拖动前的位置，如果拖动后出现栏目交错，需要将这些数据还原
+      const target = e.target;
+      beforeDragAddress.start = target.getAttribute('data-start');
+      beforeDragAddress.end = target.getAttribute('data-end');
+      beforeDragAddress.top = getComputedStyle(target).getPropertyValue('top');
+      beforeDragAddress.left = getComputedStyle(target).getPropertyValue('left');
+      beforeDragAddress.width = getComputedStyle(target).getPropertyValue('width');
+      beforeDragAddress.height = getComputedStyle(target).getPropertyValue('height');
     },
 
     /**
@@ -247,6 +248,7 @@ export default {
 <style lang="scss" scoped>
 div.drag {
   position: absolute;
+  cursor: move;
   top: 0;
   left: 0;
   width: 86px;
@@ -256,7 +258,17 @@ div.drag {
   font-size: 20px;
   font-weight: 600;
   opacity: 0.3;
-  background-color: aquamarine;
+  background-color: #66a3ff;
+
+  i.delete {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    cursor: pointer;
+    &:hover {
+      color: #001433;
+    }
+  }
 
   div.vertical,
   div.horizontal {
