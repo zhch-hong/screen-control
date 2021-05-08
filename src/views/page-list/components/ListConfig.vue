@@ -14,22 +14,6 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="显示列名">
-        <el-select v-model="form.show_column_name">
-          <el-option
-            v-for="(item, index) of columnNameList"
-            :key="index"
-            :label="item.view_fields"
-            :value="item.value_field"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="显示行数">
-        <el-input v-model="form.show_line"></el-input>
-      </el-form-item>
-      <el-form-item label="点击查看URL">
-        <el-input v-model="form.click_view"></el-input>
-      </el-form-item>
     </el-form>
     <el-divider></el-divider>
     <div class="check-group">
@@ -82,9 +66,6 @@ import { hightFields } from '@/network';
 const formModel = {
   page_name: '',
   data_source: '',
-  show_column_name: '',
-  show_line: '',
-  click_view: '',
   is_refresh_button: 0,
   is_show_underline: 0,
   is_more_button: 0,
