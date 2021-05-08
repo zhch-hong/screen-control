@@ -4,6 +4,7 @@
     draggable="true"
     :data-start="startAddress"
     :data-end="endAddress"
+    :style="{ borderStyle }"
     @dragstart="ondragstart"
     @dragend="ondragend"
   >
@@ -40,6 +41,7 @@ export default {
       dragRect: null,
       startAddress: '',
       endAddress: '',
+      borderStyle: 'solid',
     };
   },
 
@@ -102,6 +104,8 @@ export default {
     },
 
     ondragstart(e) {
+      this.borderStyle = 'dashed';
+
       UNRELATED.offsetX = e.offsetX;
       UNRELATED.offsetY = e.offsetY;
 
@@ -120,6 +124,8 @@ export default {
      * 已经存在于布局区域的栏目块拖动结束
      */
     async ondragend(e) {
+      this.borderStyle = 'solid';
+
       const top = e.clientY + this.scrollTop.value - UNRELATED.offsetY - this.consumedHeight;
       const left = e.clientX - this.consumedWidth - UNRELATED.offsetX;
       const len = this.border + this.margin;
@@ -192,6 +198,8 @@ export default {
     },
 
     resizeWidth(e) {
+      this.borderStyle = 'dashed';
+
       const dragElement = e.target.parentElement;
       const left = parseFloat(dragElement.style.left);
       const ul = dragElement.parentElement.querySelector('ul.back');
@@ -207,6 +215,7 @@ export default {
       document.addEventListener(
         'mouseup',
         (e) => {
+          this.borderStyle = 'solid';
           dragElement.style.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left + 'px';
           document.removeEventListener('mousemove', handler);
           this.setEndAddress();
@@ -216,6 +225,8 @@ export default {
     },
 
     resizeHeight(e) {
+      this.borderStyle = 'dashed';
+
       const dragElement = e.target.parentElement;
       const top = parseFloat(dragElement.style.top);
       const handler = (e) => {
@@ -227,6 +238,8 @@ export default {
       document.addEventListener(
         'mouseup',
         (e) => {
+          this.borderStyle = 'solid';
+
           const _f = Number.parseFloat;
           const _h = this.border + this.margin;
           const _d =
@@ -259,6 +272,8 @@ div.drag {
   font-weight: 600;
   opacity: 0.3;
   background-color: #66a3ff;
+  box-sizing: border-box;
+  border: 2px #000a1a;
 
   i.delete {
     position: absolute;
