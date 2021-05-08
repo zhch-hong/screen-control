@@ -20,6 +20,18 @@ const UNRELATED = {
   offsetY: 0,
 };
 
+/**
+ * 拖动前的位置和宽高
+ */
+const beforeDragAddress = {
+  start: '',
+  end: '',
+  top: '',
+  left: '',
+  width: '',
+  height: '',
+};
+
 export default {
   data() {
     return {
@@ -76,12 +88,37 @@ export default {
     ondragstart(e) {
       UNRELATED.offsetX = e.offsetX;
       UNRELATED.offsetY = e.offsetY;
+
+      // 为resetToPre方法做数据铺垫
+      // 记录拖动前的位置，如果拖动后出现栏目交错，需要将这些数据还原
+      const target = e.target;
+      beforeDragAddress.start = target.getAttribute('data-start');
+      beforeDragAddress.end = target.getAttribute('data-end');
+      beforeDragAddress.top = getComputedStyle(target).getPropertyValue('top');
+      beforeDragAddress.left = getComputedStyle(target).getPropertyValue('left');
+      beforeDragAddress.width = getComputedStyle(target).getPropertyValue('width');
+      beforeDragAddress.height = getComputedStyle(target).getPropertyValue('height');
+    },
+
+    /**
+     * 重置当前栏目到上一次的状态
+     * 用于拖动结束时与其他栏目发生交错的情况下还原到之前的状态
+     */
+    resetToPre() {
+      this.$el.setAttribute('data-start', beforeDragAddress.start);
+      this.$el.setAttribute('data-end', beforeDragAddress.end);
+      this.$el.style.top = beforeDragAddress.top;
+      this.$el.style.left = beforeDragAddress.left;
+      this.$el.style.width = beforeDragAddress.width;
+      this.$el.style.height = beforeDragAddress.height;
+
+      this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
     },
 
     /**
      * 已经存在于布局区域的栏目块拖动结束
      */
-    ondragend(e) {
+    async ondragend(e) {
       const top = e.clientY + this.scrollTop.value - UNRELATED.offsetY - this.consumedHeight;
       const left = e.clientX - this.consumedWidth - UNRELATED.offsetX;
       const len = this.border + this.margin;
@@ -100,6 +137,9 @@ export default {
       this.setAddressData();
 
       this.overflowXFix();
+
+      await this.$nextTick();
+
       this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
     },
 

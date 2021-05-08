@@ -75,6 +75,11 @@ import { menhuData, updateMenhu, lanmuListByType } from '@/network';
 const CONSUMED_WIDTH = 360;
 const CONSUMED_HEIGHT = 147;
 
+/**
+ * 门户中栏目块的位置
+ */
+const dragendItemMap = {};
+
 export default {
   name: 'update-portal',
 
@@ -90,11 +95,6 @@ export default {
       scrollTop: {
         value: 0,
       },
-
-      /**
-       * 门户中栏目块的位置
-       */
-      dragendItemMap: {},
 
       lanmuList: [],
       lanmuHref: [],
@@ -232,15 +232,27 @@ export default {
         });
         instance.$mount(mountEl);
 
-        this.dragendItemMap[uuid] = [`${left}-${top}`, `${left}-${top}`];
-        instance.$on('dragend', (address) => {
-          this.dragendItemMap[uuid] = address;
-          this.isIntersectionRect();
+        dragendItemMap[uuid] = [`${left}-${top}`, `${left}-${top}`];
+
+        instance.$on('dragend', async (address) => {
+          dragendItemMap[uuid] = address;
+
+          await this.$nextTick();
+
+          if (this.isIntersectionRect()) {
+            this.$message.error('栏目交错');
+            instance.resetToPre();
+          }
         });
 
-        setTimeout(() => {
-          console.log(this.isIntersectionRect());
-        }, 1000);
+        await this.$nextTick();
+
+        if (this.isIntersectionRect()) {
+          this.$message.error('栏目交错');
+          instance.$el.remove();
+          instance.$destroy();
+          delete dragendItemMap[uuid];
+        }
       }
     },
 
@@ -273,13 +285,20 @@ export default {
         });
         instance.$mount(mountEl);
 
-        this.dragendItemMap[item.page_uuid] = [
+        dragendItemMap[item.page_uuid] = [
           `${item.page_left_top_X}-${item.page_left_top_Y}`,
           `${item.page_right_botton_X}-${item.page_right_botton_Y}`,
         ];
-        instance.$on('dragend', (address) => {
-          this.dragendItemMap[item.page_uuid] = address;
-          this.isIntersectionRect();
+
+        instance.$on('dragend', async (address) => {
+          dragendItemMap[item.page_uuid] = address;
+
+          await this.$nextTick();
+
+          if (this.isIntersectionRect()) {
+            this.$message.error('栏目交错');
+            instance.resetToPre();
+          }
         });
       });
     },
@@ -288,8 +307,7 @@ export default {
      * 判断栏目之间是否存在交叉重叠
      */
     isIntersectionRect() {
-      console.log(Object.values(this.dragendItemMap));
-      const array = _.cloneDeep(Object.values(this.dragendItemMap));
+      const array = _.cloneDeep(Object.values(dragendItemMap));
       const intersection = (o, t) => {
         const osx = o[0].split('-')[0] * 1;
         const osy = o[0].split('-')[1] * 1;
@@ -300,7 +318,7 @@ export default {
         const tex = t[1].split('-')[0] * 1;
         const tey = t[1].split('-')[1] * 1;
 
-        if (osx > tex || osy > tey || oex > tsx || oey > tsy) {
+        if (osx > tex || osy > tey || oex < tsx || oey < tsy) {
           return false;
         }
 
