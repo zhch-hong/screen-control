@@ -197,6 +197,7 @@ export default {
     },
 
     ondragover(e) {
+      e.dataTransfer.dropEffect = 'move';
       e.preventDefault();
     },
 
