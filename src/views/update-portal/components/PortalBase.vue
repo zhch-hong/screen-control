@@ -10,7 +10,7 @@
             v-for="item of portalType"
             :key="item.dict_value"
             :label="item.dict_label"
-            :value="item.dict_value"
+            :value="Number.parseInt(item.dict_value)"
           ></el-option>
         </el-select>
       </el-form-item>

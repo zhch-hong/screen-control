@@ -12,7 +12,9 @@
           draggable="true"
           @dragend="onItemDragend"
         >
-          {{ item.page_name }}
+          <span>
+            {{ item.page_name }}
+          </span>
         </div>
       </div>
       <h4>链接栏目</h4>
@@ -26,7 +28,9 @@
           draggable="true"
           @dragend="onItemDragend"
         >
-          {{ item.page_name }}
+          <span>
+            {{ item.page_name }}
+          </span>
         </div>
       </div>
       <h4>图表栏目</h4>
@@ -40,7 +44,9 @@
           draggable="true"
           @dragend="onItemDragend"
         >
-          {{ item.page_name }}
+          <span>
+            {{ item.page_name }}
+          </span>
         </div>
       </div>
     </div>
@@ -75,8 +81,13 @@ import { createMenhu, lanmuListByType } from '@/network';
 const CONSUMED_WIDTH = 360;
 const CONSUMED_HEIGHT = 147;
 
+/**
+ * 门户中栏目块的位置
+ */
+const dragendItemMap = {};
+
 export default {
-  name: 'update-portal',
+  name: 'create-portal',
 
   components: {
     PortalBase,
@@ -90,6 +101,7 @@ export default {
       scrollTop: {
         value: 0,
       },
+
       lanmuList: [],
       lanmuHref: [],
       lanmuChart: [],
@@ -139,7 +151,7 @@ export default {
       const chartParams = { '~table~': 'lx_sys_pages', page_type: '3', pagesize: 20, cpage: 1 };
       lanmuListByType(chartParams)
         .then(({ data }) => {
-          console.log('图标', data);
+          console.log('图表', data);
           if (data.code == 200) {
             this.lanmuChart = data.data;
           }
@@ -166,11 +178,20 @@ export default {
     },
 
     /**
+     * 获取布局区域某一个li元素
+     * @param value ref值
+     * @returns HTMLLiElement
+     */
+    getElement(value) {
+      if (this.$refs[value]) return this.$refs[value][0];
+    },
+
+    /**
      * 当左边单个栏目拖动结束时的处理回调
      */
-    onItemDragend(e) {
+    async onItemDragend(e) {
       if (e.dataTransfer.dropEffect === 'copy') {
-        // 计算处拖动到哪一个方块放置的
+        // 计算出拖动到哪一个方块放置的
         const scrollY = this.$refs.LayoutPanel.scrollTop;
         const top = Math.ceil((e.clientY - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
         const left = Math.ceil((e.clientX - CONSUMED_WIDTH) / (this.border + this.margin));
@@ -199,16 +220,76 @@ export default {
           left,
         });
         instance.$mount(mountEl);
+
+        dragendItemMap[uuid] = [`${left}-${top}`, `${left}-${top}`];
+
+        instance.$on('dragend', async (address) => {
+          dragendItemMap[uuid] = address;
+
+          await this.$nextTick();
+
+          if (this.isIntersectionRect()) {
+            this.$message.error('栏目交错');
+            instance.resetToPre();
+          }
+        });
+
+        instance.$on('remove', () => {
+          instance.$el.remove();
+          instance.$destroy();
+          delete dragendItemMap[uuid];
+        });
+
+        await this.$nextTick();
+
+        if (this.isIntersectionRect()) {
+          this.$message.error('栏目交错');
+          instance.$el.remove();
+          instance.$destroy();
+          delete dragendItemMap[uuid];
+        }
       }
     },
 
     /**
-     * 获取布局区域某一个li元素
-     * @param value ref值
-     * @returns HTMLLiElement
+     * 判断栏目之间是否存在交叉重叠
      */
-    getElement(value) {
-      if (this.$refs[value]) return this.$refs[value][0];
+    isIntersectionRect() {
+      const array = _.cloneDeep(Object.values(dragendItemMap));
+      const intersection = (o, t) => {
+        const osx = o[0].split('-')[0] * 1;
+        const osy = o[0].split('-')[1] * 1;
+        const oex = o[1].split('-')[0] * 1;
+        const oey = o[1].split('-')[1] * 1;
+        const tsx = t[0].split('-')[0] * 1;
+        const tsy = t[0].split('-')[1] * 1;
+        const tex = t[1].split('-')[0] * 1;
+        const tey = t[1].split('-')[1] * 1;
+
+        if (osx > tex || osy > tey || oex < tsx || oey < tsy) {
+          return false;
+        }
+
+        return true;
+      };
+      const isFind = (source, target) => {
+        let b = false;
+        const i = target.findIndex((item) => {
+          return intersection(source, item);
+        });
+        if (i !== -1) {
+          b = true;
+        } else {
+          if (target.length > 0) {
+            const s = target.shift();
+            return isFind(s, target);
+          }
+        }
+
+        return b;
+      };
+      const s = array.shift();
+      return isFind(s, array);
     },
 
     handleSubmit(portalBase) {
@@ -220,9 +301,12 @@ export default {
       nodeList.forEach((element) => {
         const start = element.getAttribute('data-start').split('-');
         const end = element.getAttribute('data-end').split('-');
+        const uuid = element.getAttribute('data-uuid');
         const page_uuid = element.getAttribute('data-page_uuid');
         const data = {
+          uuid,
           page_uuid,
+          portals_uuid: this.portalBase.uuid,
           org_level_uuid: '',
           portal_person: '',
           page_left_top_X: _f(start[0]),
@@ -233,20 +317,20 @@ export default {
         dataList.push(data);
       });
 
-      const data = {
+      const params = {
         '~table~': 'lx_sys_portals',
+        uuid: this.portalBase.uuid,
         portal_name: portalBase.portal_name,
         portal_menu: portalBase.portal_menu,
+        portal_type: portalBase.portal_type,
         background_img: portalBase.background_img,
-        is_use: '',
+        is_use: this.portalBase.is_use,
         lx_sys_portals_sub: dataList,
       };
 
-      console.log(JSON.parse(JSON.stringify(data)));
-
-      createMenhu(data)
+      createMenhu(params)
         .then(({ data }) => {
-          console.log(data);
+          console.log('创建门户', JSON.parse(JSON.stringify(params)), data);
           if (data.code == 200) {
             this.$message.success(data.msg);
             this.$router.push('/');
@@ -276,17 +360,23 @@ div.layout-item {
   }
 
   div.item-list {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
     div.item {
-      margin: 4px 0;
+      position: relative;
+      margin: 4px;
       width: 80px;
       height: 80px;
-      background-color: aqua;
+      background-color: rgba(64, 158, 255, 0.8);
+      border-radius: 2px;
+      display: inline-block;
+      & > span {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        color: white;
+        white-space: nowrap;
+      }
     }
   }
 }
