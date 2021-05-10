@@ -294,7 +294,7 @@ export default {
         instance.consumedWidth = CONSUMED_WIDTH;
         instance.consumedHeight = CONSUMED_HEIGHT;
         instance.scrollTop = this.scrollTop;
-        instance.$set(instance.$data, 'dragName', item.page_uuid);
+        instance.$set(instance.$data, 'dragName', item.page_name || '获取栏目名称失败');
         instance.$set(instance.$data, 'dragRect', {
           top: item.page_left_top_Y,
           right: item.page_right_botton_X,

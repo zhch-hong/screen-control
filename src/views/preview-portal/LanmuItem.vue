@@ -9,8 +9,8 @@
       'border-width': containerObservableStyle.borderWidth,
     }"
   >
-    <div class="header" :style="{ height: headerHeight }">
-      <span>这里是标题区域</span>
+    <div class="header" :style="{ height: headerHeight, 'line-height': headerHeight }">
+      <span class="name">{{ lanmu.pageName }}</span>
     </div>
     <div class="main" :style="{ height: mainHeight }">
       <el-scrollbar style="height: 100%" wrapStyle="height: 100%; overflow-x: hidden;">
@@ -32,6 +32,9 @@ export default {
         width: '',
         height: '',
         borderWidth: '',
+      },
+      lanmu: {
+        pageName: '',
       },
     };
   },
@@ -67,6 +70,11 @@ export default {
   .header {
     box-sizing: border-box;
     border-bottom: 1px solid #f2f2f2;
+
+    .name {
+      color: rgb(1, 166, 240);
+      margin-left: 14px;
+    }
   }
 
   .main {

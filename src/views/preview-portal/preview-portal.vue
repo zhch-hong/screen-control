@@ -63,7 +63,9 @@ export default {
         const subclass = Vue.extend(LanmuItem);
         const instance = new subclass();
         instance.$mount(div);
+
         this.setAddress(instance, lm);
+        this.setLanmuData(instance, lm);
 
         const mountElement = instance.getMountElement();
         const renderWrapClass = Vue.extend(RenderWrap);
@@ -82,6 +84,12 @@ export default {
       instance.$set(s, 'width', (page_right_botton_X - page_left_top_X + 1) * this.borderLength + 'px');
       instance.$set(s, 'height', (page_right_botton_Y - page_left_top_Y + 1) * this.borderLength + 'px');
       instance.$set(s, 'borderWidth', parseFloat(this.margin) + 4 + 'px');
+    },
+
+    setLanmuData(instance, { page_name = '获取栏目名称失败' }) {
+      const l = instance.lanmu;
+
+      instance.$set(l, 'pageName', page_name);
     },
   },
 };
