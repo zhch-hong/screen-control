@@ -219,6 +219,9 @@ export default {
           dragElement.style.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left + 'px';
           document.removeEventListener('mousemove', handler);
           this.setEndAddress();
+          this.$nextTick(() => {
+            this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+          });
         },
         { once: true }
       );
@@ -251,6 +254,9 @@ export default {
           document.removeEventListener('mousemove', handler);
 
           this.setEndAddress();
+          this.$nextTick(() => {
+            this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+          });
         },
         { once: true }
       );
