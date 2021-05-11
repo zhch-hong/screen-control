@@ -86,10 +86,33 @@ export default {
       instance.$set(s, 'borderWidth', parseFloat(this.margin) + 4 + 'px');
     },
 
-    setLanmuData(instance, { page_name = '获取栏目名称失败' }) {
+    setLanmuData(
+      instance,
+      {
+        page_name = '获取栏目名称失败',
+        page_type = '',
+        is_use = '',
+        is_refresh_button = '',
+        is_show_underline = '',
+        is_more_button = '',
+        is_add_button = '',
+        is_show_title = '',
+        new_url = '',
+        click_view_more = '',
+      }
+    ) {
       const l = instance.lanmu;
 
       instance.$set(l, 'pageName', page_name);
+      instance.$set(l, 'pageType', page_type);
+      instance.$set(l, 'isUse', is_use);
+      instance.$set(l, 'isRefreshButton', is_refresh_button);
+      instance.$set(l, 'isShowUnderline', is_show_underline);
+      instance.$set(l, 'isMoreButton', is_more_button);
+      instance.$set(l, 'isAddButton', is_add_button);
+      instance.$set(l, 'isShowTitle', is_show_title);
+      instance.$set(l, 'newUrl', new_url);
+      instance.$set(l, 'clickViewMore', click_view_more);
     },
   },
 };

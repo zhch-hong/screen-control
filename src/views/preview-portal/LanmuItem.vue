@@ -9,8 +9,27 @@
       'border-width': containerObservableStyle.borderWidth,
     }"
   >
-    <div class="header" :style="{ height: headerHeight, 'line-height': headerHeight }">
-      <span class="name">{{ lanmu.pageName }}</span>
+    <div class="header" :style="{ height: headerHeight }">
+      <!-- 标题 -->
+      <div class="name">
+        <span
+          v-if="lanmu.isShowTitle == 1"
+          :style="{ 'text-decoration-line': lanmu.isShowUnderline == 1 ? 'underline' : 'none' }"
+          >{{ lanmu.pageName }}</span
+        >
+      </div>
+      <!-- 按钮 -->
+      <div class="button">
+        <el-button type="text" icon="el-icon-refresh" title="刷新" @click="handleRefresh"></el-button>
+        <el-button type="text" icon="el-icon-plus" title="新增" @click="handleCreate"></el-button>
+        <el-button
+          type="text"
+          icon="el-icon-more"
+          title="更多"
+          style="transform: rotate(90deg)"
+          @click="handleMore"
+        ></el-button>
+      </div>
     </div>
     <div class="main" :style="{ height: mainHeight }">
       <el-scrollbar style="height: 100%" wrapStyle="height: 100%; overflow-x: hidden;">
@@ -35,6 +54,15 @@ export default {
       },
       lanmu: {
         pageName: '',
+        pageType: '',
+        isUse: '',
+        isRefreshButton: '',
+        isShowUnderline: '',
+        isMoreButton: '',
+        isAddButton: '',
+        isShowTitle: '',
+        newUrl: '',
+        clickViewMore: '',
       },
     };
   },
@@ -54,6 +82,24 @@ export default {
     getMountElement() {
       return this.$refs.mountElement;
     },
+
+    handleRefresh() {
+      this.$message.info('你点击了刷新按钮');
+    },
+
+    handleCreate() {
+      this.$message.info('你点击了新增按钮');
+      if (this.lanmu.newUrl) {
+        window.open(this.lanmu.newUrl);
+      }
+    },
+
+    handleMore() {
+      this.$message.info('你点击了更多按钮');
+      if (this.lanmu.clickViewMore) {
+        window.open(this.lanmu.clickViewMore);
+      }
+    },
   },
 };
 </script>
@@ -70,10 +116,17 @@ export default {
   .header {
     box-sizing: border-box;
     border-bottom: 1px solid #f2f2f2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     .name {
       color: rgb(1, 166, 240);
       margin-left: 14px;
+    }
+
+    .button {
+      margin-right: 14px;
     }
   }
 
