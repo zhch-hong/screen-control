@@ -65,6 +65,8 @@ export default {
           if (data.code == 200) {
             this.tableData = data.data;
             this.totalResult = data.totalCount;
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {
@@ -84,6 +86,8 @@ export default {
 
           if (data.code == 200) {
             console.log(data.data);
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch((error) => {
@@ -103,6 +107,8 @@ export default {
 
           if (data.code == 200) {
             console.log(data.data);
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch((error) => {
@@ -129,6 +135,8 @@ export default {
         .then(({ data }) => {
           if (data.code == 200) {
             this.fetchTableData();
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {

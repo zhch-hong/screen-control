@@ -139,6 +139,8 @@ export default {
             console.log('门户数据', data);
             this.portalBase = data.data;
             this.initDrag(data.lx_sys_portals_sub);
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch((error) => {
@@ -153,6 +155,8 @@ export default {
           console.log('列表', data);
           if (data.code == 200) {
             this.lanmuList = data.data;
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {
@@ -165,6 +169,8 @@ export default {
           console.log('链接', data);
           if (data.code == 200) {
             this.lanmuHref = data.data;
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {
@@ -177,6 +183,8 @@ export default {
           console.log('图表', data);
           if (data.code == 200) {
             this.lanmuChart = data.data;
+          } else {
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {

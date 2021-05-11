@@ -125,6 +125,8 @@ export default {
             if (data.code == 200) {
               this.tableData = data.data;
               this.totalResult = data.totalCount;
+            } else {
+              this.$message.warning(data.msg);
             }
           })
           .catch(({ message }) => {
@@ -136,6 +138,8 @@ export default {
             if (data.code == 200) {
               this.tableData = data.data;
               this.totalResult = data.totalCount;
+            } else {
+              this.$message.warning(data.msg);
             }
           })
           .catch(({ message }) => {
@@ -206,7 +210,7 @@ export default {
           if (data.code == 200) {
             this.fetchLanmulist();
           } else {
-            this.$message.error(data.msg);
+            this.$message.warning(data.msg);
           }
         })
         .catch(({ message }) => {
@@ -228,6 +232,8 @@ export default {
           if (page_type == 1) this.listUpdateVisible = true;
           if (page_type == 3) this.linkUpdateVisible = true;
           if (page_type == 2) this.chartUpdateVisible = true;
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },
@@ -240,7 +246,7 @@ export default {
         if (data.code == 200) {
           this.fetchLanmulist();
         } else {
-          this.$message.error(data.msg);
+          this.$message.warning(data.msg);
         }
       });
     },
@@ -260,7 +266,7 @@ export default {
             this.listUpdateVisible = false;
             this.fetchLanmulist();
           } else {
-            this.$message.error(data.msg);
+            this.$message.warning(data.msg);
           }
         });
       } else {
@@ -280,7 +286,7 @@ export default {
               this.listUpdateVisible = false;
               this.fetchLanmulist();
             } else {
-              this.$message.error(data.msg);
+              this.$message.warning(data.msg);
             }
           })
           .catch(() => {
@@ -304,7 +310,7 @@ export default {
             this.fetchLanmulist();
             this.linkUpdateVisible = false;
           } else {
-            this.$message.error(data.msg);
+            this.$message.warning(data.msg);
           }
         });
       } else {
@@ -324,7 +330,7 @@ export default {
               this.fetchLanmulist();
               this.linkUpdateVisible = false;
             } else {
-              this.$message.error(data.msg);
+              this.$message.warning(data.msg);
             }
           })
           .catch(() => {
@@ -348,7 +354,7 @@ export default {
             this.fetchLanmulist();
             this.chartUpdateVisible = false;
           } else {
-            this.$message.error(data.msg);
+            this.$message.warning(data.msg);
           }
         });
       } else {
@@ -368,7 +374,7 @@ export default {
               this.fetchLanmulist();
               this.chartUpdateVisible = false;
             } else {
-              this.$message.error(data.msg);
+              this.$message.warning(data.msg);
             }
           })
           .catch(() => {

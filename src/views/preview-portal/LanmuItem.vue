@@ -9,20 +9,32 @@
       'border-width': containerObservableStyle.borderWidth,
     }"
   >
-    <div class="header" :style="{ height: headerHeight }">
+    <div
+      class="header"
+      :style="{ height: headerHeight, 'border-bottom': lanmu.isShowUnderline == 1 ? '1px solid #f2f2f2' : '' }"
+    >
       <!-- 标题 -->
       <div class="name">
-        <span
-          v-if="lanmu.isShowTitle == 1"
-          :style="{ 'text-decoration-line': lanmu.isShowUnderline == 1 ? 'underline' : 'none' }"
-          >{{ lanmu.pageName }}</span
-        >
+        <span v-if="lanmu.isShowTitle == 1">{{ lanmu.pageName }}</span>
       </div>
       <!-- 按钮 -->
       <div class="button">
-        <el-button type="text" icon="el-icon-refresh" title="刷新" @click="handleRefresh"></el-button>
-        <el-button type="text" icon="el-icon-plus" title="新增" @click="handleCreate"></el-button>
         <el-button
+          v-if="lanmu.isRefreshButton == 1"
+          type="text"
+          icon="el-icon-refresh"
+          title="刷新"
+          @click="handleRefresh"
+        ></el-button>
+        <el-button
+          v-if="lanmu.isAddButton == 1"
+          type="text"
+          icon="el-icon-plus"
+          title="新增"
+          @click="handleCreate"
+        ></el-button>
+        <el-button
+          v-if="lanmu.isMoreButton == 1"
           type="text"
           icon="el-icon-more"
           title="更多"
@@ -115,7 +127,6 @@ export default {
 
   .header {
     box-sizing: border-box;
-    border-bottom: 1px solid #f2f2f2;
     display: flex;
     justify-content: space-between;
     align-items: center;

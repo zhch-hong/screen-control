@@ -47,6 +47,8 @@ export default {
 
           this.lanmuList = data.lx_sys_portals_sub;
           this.refreshLayout();
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },

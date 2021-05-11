@@ -84,6 +84,8 @@ export default {
         if (data.code == 200) {
           console.log('类型', data.data);
           this.portalType = data.data;
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },
@@ -93,6 +95,8 @@ export default {
         if (data.code == 200) {
           console.log('菜单', data.data);
           this.portalMenu = data.data;
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },

@@ -123,6 +123,8 @@ export default {
       hightFields('table_name').then(({ data }) => {
         if (data.code == 200) {
           this.nameList = data.data;
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },

@@ -130,6 +130,8 @@ export default {
         console.log('数据源', data);
         if (data.code == 200) {
           this.shujuyuanList = data.data;
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },
@@ -153,6 +155,8 @@ export default {
         console.log('显示列名', data);
         if (data.code == 200) {
           this.columnNameList = data.data;
+        } else {
+          this.$message.warning(data.msg);
         }
       });
     },
