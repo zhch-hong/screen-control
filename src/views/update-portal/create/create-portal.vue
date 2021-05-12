@@ -299,6 +299,7 @@ export default {
     },
 
     handleSubmit(portalBase) {
+      console.log(portalBase);
       const dataList = [];
       const _f = Number.parseFloat;
 
@@ -307,12 +308,9 @@ export default {
       nodeList.forEach((element) => {
         const start = element.getAttribute('data-start').split('-');
         const end = element.getAttribute('data-end').split('-');
-        const uuid = element.getAttribute('data-uuid');
         const page_uuid = element.getAttribute('data-page_uuid');
         const data = {
-          uuid,
           page_uuid,
-          portals_uuid: this.portalBase.uuid,
           org_level_uuid: '',
           portal_person: '',
           page_left_top_X: _f(start[0]),
@@ -325,12 +323,11 @@ export default {
 
       const params = {
         '~table~': 'lx_sys_portals',
-        uuid: this.portalBase.uuid,
         portal_name: portalBase.portal_name,
         portal_menu: portalBase.portal_menu,
         portal_type: portalBase.portal_type,
         background_img: portalBase.background_img,
-        is_use: this.portalBase.is_use,
+        is_use: 1,
         lx_sys_portals_sub: dataList,
       };
 

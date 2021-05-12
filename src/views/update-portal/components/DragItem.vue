@@ -146,8 +146,10 @@ export default {
       this.overflowXFix();
 
       await this.$nextTick();
-
-      this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+      setTimeout(() => {
+        console.log([this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+        this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+      }, 1000);
     },
 
     setAddressData() {
