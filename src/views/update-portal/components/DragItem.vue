@@ -142,14 +142,11 @@ export default {
       e.target.style.top = rect.top + this.scrollTop.value - this.consumedHeight + 'px';
 
       this.setAddressData();
-
       this.overflowXFix();
 
       await this.$nextTick();
-      setTimeout(() => {
-        console.log([this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
-        this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
-      }, 1000);
+
+      this.$emit('dragend', [this.startAddress, this.endAddress]);
     },
 
     setAddressData() {
