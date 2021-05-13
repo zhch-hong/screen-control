@@ -44,9 +44,9 @@
       </div>
     </div>
     <div class="main" :style="{ height: mainHeight }">
-      <el-scrollbar style="height: 100%" wrapStyle="height: 100%; overflow-x: hidden;">
-        <div ref="mountElement"></div>
-      </el-scrollbar>
+      <!-- <el-scrollbar style="height: 100%" wrapStyle="height: 100%; overflow-x: hidden;"> -->
+      <div ref="mountElement"></div>
+      <!-- </el-scrollbar> -->
     </div>
   </div>
 </template>
@@ -142,7 +142,7 @@ export default {
   }
 
   .main {
-    overflow: auto;
+    overflow: hidden;
   }
 }
 </style>
