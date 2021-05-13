@@ -207,8 +207,8 @@ export default {
         const scrollY = this.$refs.LayoutPanel.scrollTop;
         const top = Math.ceil((this.client.y - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
         const left = Math.ceil((this.client.x - CONSUMED_WIDTH) / (this.border + this.margin));
-        const right = left + 3;
-        const bottom = top + 3;
+        const right = left + 1;
+        const bottom = top + 1;
 
         // 创建挂载元素
         const mountEl = document.createElement('div');
@@ -220,8 +220,7 @@ export default {
         const instance = new Class();
         instance.getElement = this.getElement;
         instance.border = this.border;
-        instance.uuid = '';
-        instance.page_uuid = uuid;
+        instance.dataPageUUID = uuid;
         instance.margin = this.margin;
         instance.consumedWidth = CONSUMED_WIDTH;
         instance.consumedHeight = CONSUMED_HEIGHT;

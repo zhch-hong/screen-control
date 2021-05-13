@@ -4,14 +4,22 @@
     draggable="true"
     :data-start="startAddress"
     :data-end="endAddress"
-    :style="{ borderStyle }"
+    :data-uuid="dataUUID"
+    :data-page_uuid="dataPageUUID"
+    :style="{
+      borderStyle,
+      top: status.top + 'px',
+      left: status.left + 'px',
+      width: status.width + 'px',
+      height: status.height + 'px',
+    }"
     @dragstart="ondragstart"
     @dragend="ondragend"
   >
     <i class="el-icon-delete delete" title="删除栏目" @click="$emit('remove')"></i>
     <div class="name">{{ dragName }}</div>
-    <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight($event)"></div>
-    <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth($event)"></div>
+    <div class="horizontal" @mousedown.self.left.prevent.stop="resizeHeight"></div>
+    <div class="vertical" @mousedown.self.left.prevent.stop="resizeWidth"></div>
   </div>
 </template>
 <script>
@@ -41,7 +49,15 @@ export default {
       dragRect: null,
       startAddress: '',
       endAddress: '',
+      dataUUID: '',
+      dataPageUUID: '',
       borderStyle: 'solid',
+      status: {
+        top: 0,
+        left: 0,
+        width: 0,
+        height: 0,
+      },
       client: {
         x: 0,
         y: 0,
@@ -51,15 +67,9 @@ export default {
 
   mounted() {
     this.refreshAddress();
-    this.setUUID();
   },
 
   methods: {
-    setUUID() {
-      this.$el.setAttribute('data-uuid', this.uuid);
-      this.$el.setAttribute('data-page_uuid', this.page_uuid);
-    },
-
     refreshAddress() {
       if (this.dragRect) {
         const top = this.dragRect.top,
@@ -70,8 +80,8 @@ export default {
         const layoutRect = layout.getBoundingClientRect();
         const styleTop = liRect.top - layoutRect.top;
         const styleLeft = liRect.left - layoutRect.left;
-        this.$el.style.top = styleTop + this.scrollTop.value + 'px';
-        this.$el.style.left = styleLeft + 'px';
+        this.status.top = styleTop + this.scrollTop.value;
+        this.status.left = styleLeft;
 
         this.refreshSize(styleTop, styleLeft, this.dragRect.bottom, this.dragRect.right);
       }
@@ -85,9 +95,8 @@ export default {
       const styleHeight = liRect.bottom - layoutRect.top - top;
       const styleWidth = liRect.right - layoutRect.left - left;
 
-      this.$el.style.width = styleWidth + 'px';
-      this.$el.style.height = styleHeight + 'px';
-      this.$el.style.lineHeight = styleHeight + 'px';
+      this.status.width = styleWidth;
+      this.status.height = styleHeight;
 
       this.setAddressData();
     },
@@ -96,15 +105,29 @@ export default {
      * 重置当前栏目到上一次的状态
      * 用于拖动结束时与其他栏目发生交错的情况下还原到之前的状态
      */
-    resetToPre() {
-      this.$el.setAttribute('data-start', beforeDragAddress.start);
-      this.$el.setAttribute('data-end', beforeDragAddress.end);
-      this.$el.style.top = beforeDragAddress.top;
-      this.$el.style.left = beforeDragAddress.left;
-      this.$el.style.width = beforeDragAddress.width;
-      this.$el.style.height = beforeDragAddress.height;
+    async resetToPre() {
+      this.startAddress = beforeDragAddress.start;
+      this.endAddress = beforeDragAddress.end;
+      this.status.top = beforeDragAddress.top;
+      this.status.left = beforeDragAddress.left;
+      this.status.width = beforeDragAddress.width;
+      this.status.height = beforeDragAddress.height;
 
-      this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+      await this.$nextTick();
+
+      this.$emit('dragend', [this.startAddress, this.endAddress]);
+    },
+
+    /**
+     * 缓存拖动或改变大小前的位置
+     */
+    cacheAddress() {
+      beforeDragAddress.start = this.startAddress;
+      beforeDragAddress.end = this.endAddress;
+      beforeDragAddress.top = this.status.top;
+      beforeDragAddress.left = this.status.left;
+      beforeDragAddress.width = this.status.width;
+      beforeDragAddress.height = this.status.height;
     },
 
     ondragstart(e) {
@@ -113,23 +136,13 @@ export default {
       UNRELATED.offsetX = e.offsetX;
       UNRELATED.offsetY = e.offsetY;
 
-      // 为resetToPre方法做数据铺垫
-      // 记录拖动前的位置，如果拖动后出现栏目交错，需要将这些数据还原
-      const target = e.target;
-      beforeDragAddress.start = target.getAttribute('data-start');
-      beforeDragAddress.end = target.getAttribute('data-end');
-      beforeDragAddress.top = getComputedStyle(target).getPropertyValue('top');
-      beforeDragAddress.left = getComputedStyle(target).getPropertyValue('left');
-      beforeDragAddress.width = getComputedStyle(target).getPropertyValue('width');
-      beforeDragAddress.height = getComputedStyle(target).getPropertyValue('height');
+      this.cacheAddress(e);
     },
 
     /**
      * 已经存在于布局区域的栏目块拖动结束
      */
     async ondragend(e) {
-      await this.$nextTick();
-
       this.borderStyle = 'solid';
 
       const top = this.client.y + this.scrollTop.value - UNRELATED.offsetY - this.consumedHeight;
@@ -144,8 +157,8 @@ export default {
 
       const rect = li.getBoundingClientRect();
 
-      e.target.style.left = rect.left - this.consumedWidth + 'px';
-      e.target.style.top = rect.top + this.scrollTop.value - this.consumedHeight + 'px';
+      this.status.left = rect.left - this.consumedWidth;
+      this.status.top = rect.top + this.scrollTop.value - this.consumedHeight;
 
       this.setAddressData();
       this.overflowXFix();
@@ -156,34 +169,13 @@ export default {
     },
 
     setAddressData() {
-      this.setStartAddress();
-      this.setEndAddress();
-    },
+      const sx = Math.ceil(this.status.left / (this.border + this.margin));
+      const sy = Math.ceil(this.status.top / (this.border + this.margin));
+      this.startAddress = `${sx}-${sy}`;
 
-    setStartAddress() {
-      const _f = Number.parseFloat;
-
-      const left = _f(getComputedStyle(this.$el).getPropertyValue('left'));
-      const x = Math.ceil(left / (this.border + this.margin));
-
-      const top = _f(getComputedStyle(this.$el).getPropertyValue('top'));
-      const y = Math.ceil(top / (this.border + this.margin));
-
-      this.startAddress = `${x}-${y}`;
-    },
-
-    setEndAddress() {
-      const _f = Number.parseFloat;
-
-      const left = _f(getComputedStyle(this.$el).getPropertyValue('left'));
-      const width = _f(getComputedStyle(this.$el).getPropertyValue('width'));
-      const x = Math.round((left + width) / (this.border + this.margin));
-
-      const top = _f(getComputedStyle(this.$el).getPropertyValue('top'));
-      const height = _f(getComputedStyle(this.$el).getPropertyValue('height'));
-      const y = Math.round((top + height) / (this.border + this.margin));
-
-      this.endAddress = `${x}-${y}`;
+      const ex = Math.round((this.status.left + this.status.width) / (this.border + this.margin));
+      const ey = Math.round((this.status.top + this.status.height) / (this.border + this.margin));
+      this.endAddress = `${ex}-${ey}`;
     },
 
     /**
@@ -191,28 +183,29 @@ export default {
      * 如果宽度超出了右边界，则将缩减宽度至最右边，20
      */
     overflowXFix() {
-      let lx = this.$el.getAttribute('data-start').split('-')[0];
-      let rx = this.$el.getAttribute('data-end').split('-')[0];
+      let lx = this.startAddress.split('-')[0];
+      let rx = this.endAddress.split('-')[0];
 
       if (rx > 20) {
-        const rby = this.$el.getAttribute('data-end').split('-')[1];
+        const rby = this.endAddress.split('-')[1];
         const w = (20 - lx + 1) * this.border + (20 - lx) * this.margin;
-        this.$el.style.width = w + 'px';
+        this.status.width = w;
         this.endAddress = `${20}-${rby}`;
       }
     },
 
-    resizeWidth(e) {
+    resizeWidth() {
+      this.cacheAddress();
+
       this.borderStyle = 'dashed';
 
-      const dragElement = e.target.parentElement;
-      const left = parseFloat(dragElement.style.left);
-      const ul = dragElement.parentElement.querySelector('ul.back');
+      const left = this.status.left;
+      const ul = this.$el.parentElement.querySelector('ul.back');
       const space = (ul.clientWidth - ul.childElementCount * this.border) / (ul.childElementCount + 1);
       const width = space + this.border;
 
       const handler = (e) => {
-        dragElement.style.width = e.clientX - left - this.consumedWidth + 'px';
+        this.status.width = e.clientX - left - this.consumedWidth;
       };
 
       document.addEventListener('mousemove', handler);
@@ -221,24 +214,24 @@ export default {
         'mouseup',
         (e) => {
           this.borderStyle = 'solid';
-          dragElement.style.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left + 'px';
+          this.status.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left;
           document.removeEventListener('mousemove', handler);
-          this.setEndAddress();
+          this.setAddressData();
           this.$nextTick(() => {
-            this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+            this.$emit('dragend', [this.startAddress, this.endAddress]);
           });
         },
         { once: true }
       );
     },
 
-    resizeHeight(e) {
+    resizeHeight() {
+      this.cacheAddress();
+
       this.borderStyle = 'dashed';
 
-      const dragElement = e.target.parentElement;
-      const top = parseFloat(dragElement.style.top);
       const handler = (e) => {
-        dragElement.style.height = e.clientY + this.scrollTop.value - top - this.consumedHeight + 'px';
+        this.status.height = e.clientY + this.scrollTop.value - this.status.top - this.consumedHeight;
       };
 
       document.addEventListener('mousemove', handler);
@@ -248,19 +241,17 @@ export default {
         (e) => {
           this.borderStyle = 'solid';
 
-          const _f = Number.parseFloat;
           const _h = this.border + this.margin;
           const _d =
             Math.ceil((e.clientY - this.consumedHeight + this.scrollTop.value) / _h) * _h -
-            (top + _f(dragElement.style.height));
-          dragElement.style.height = _f(dragElement.style.height) + _d + 'px';
-          dragElement.style.lineHeight = _f(dragElement.style.height) + _d + 'px';
+            (this.status.top + this.status.height);
+          this.status.height = this.status.height + _d;
 
           document.removeEventListener('mousemove', handler);
 
-          this.setEndAddress();
+          this.setAddressData();
           this.$nextTick(() => {
-            this.$emit('dragend', [this.$el.getAttribute('data-start'), this.$el.getAttribute('data-end')]);
+            this.$emit('dragend', [this.startAddress, this.endAddress]);
           });
         },
         { once: true }
