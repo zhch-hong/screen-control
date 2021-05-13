@@ -12,6 +12,7 @@
             :label="item.dict_label"
             :value="Number.parseInt(item.dict_value)"
           ></el-option>
+          <el-option label="临时测试类型" :value="2"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="关联菜单" style="margin-bottom: 0">
@@ -22,6 +23,7 @@
             :label="item.view_fields"
             :value="item.uuid"
           ></el-option>
+          <el-option label="临时测试菜单" value="temp"></el-option>
         </el-select>
       </el-form-item>
     </el-form>
