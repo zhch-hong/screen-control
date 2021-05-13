@@ -32,7 +32,7 @@
       <i v-else class="el-icon-plus"></i>
     </el-upload>
     <div>
-      <el-button @click="$emit('cancel')">取消</el-button>
+      <el-button @click="handleCancle">取消</el-button>
       <el-button @click="handleSubmit">保存</el-button>
     </div>
   </div>
@@ -107,6 +107,10 @@ export default {
       const data = _.cloneDeep(this.formData);
       data['background_img'] = this.imageUrl;
       this.$emit('submit', data);
+    },
+
+    handleCancle() {
+      this.$router.push('/');
     },
   },
 };
