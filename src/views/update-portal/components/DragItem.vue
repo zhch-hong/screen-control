@@ -42,6 +42,10 @@ export default {
       startAddress: '',
       endAddress: '',
       borderStyle: 'solid',
+      client: {
+        x: 0,
+        y: 0,
+      },
     };
   },
 
@@ -124,10 +128,12 @@ export default {
      * 已经存在于布局区域的栏目块拖动结束
      */
     async ondragend(e) {
+      await this.$nextTick();
+
       this.borderStyle = 'solid';
 
-      const top = e.clientY + this.scrollTop.value - UNRELATED.offsetY - this.consumedHeight;
-      const left = e.clientX - this.consumedWidth - UNRELATED.offsetX;
+      const top = this.client.y + this.scrollTop.value - UNRELATED.offsetY - this.consumedHeight;
+      const left = this.client.x - this.consumedWidth - UNRELATED.offsetX;
       const len = this.border + this.margin;
       const row = top / len;
       const col = left / len;

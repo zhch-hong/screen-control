@@ -101,7 +101,10 @@ export default {
       scrollTop: {
         value: 0,
       },
-
+      client: {
+        x: 0,
+        y: 0,
+      },
       lanmuList: [],
       lanmuHref: [],
       lanmuChart: [],
@@ -177,6 +180,9 @@ export default {
 
     ondrop(e) {
       e.preventDefault();
+
+      this.client.x = e.clientX;
+      this.client.y = e.clientY;
     },
 
     ondragover(e) {
@@ -196,11 +202,11 @@ export default {
      * 当左边单个栏目拖动结束时的处理回调
      */
     async onItemDragend(e) {
-      if (e.dataTransfer.dropEffect === 'copy') {
+      if (e.dataTransfer.dropEffect !== 'none') {
         // 计算出拖动到哪一个方块放置的
         const scrollY = this.$refs.LayoutPanel.scrollTop;
-        const top = Math.ceil((e.clientY - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
-        const left = Math.ceil((e.clientX - CONSUMED_WIDTH) / (this.border + this.margin));
+        const top = Math.ceil((this.client.y - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
+        const left = Math.ceil((this.client.x - CONSUMED_WIDTH) / (this.border + this.margin));
 
         // 创建挂载元素
         const mountEl = document.createElement('div');
@@ -218,6 +224,7 @@ export default {
         instance.consumedWidth = CONSUMED_WIDTH;
         instance.consumedHeight = CONSUMED_HEIGHT;
         instance.scrollTop = this.scrollTop;
+        instance.client = this.client;
         instance.$set(instance.$data, 'dragName', e.target.innerText);
         instance.$set(instance.$data, 'dragRect', {
           top,
