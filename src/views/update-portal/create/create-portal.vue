@@ -207,6 +207,8 @@ export default {
         const scrollY = this.$refs.LayoutPanel.scrollTop;
         const top = Math.ceil((this.client.y - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
         const left = Math.ceil((this.client.x - CONSUMED_WIDTH) / (this.border + this.margin));
+        const right = left + 3;
+        const bottom = top + 3;
 
         // 创建挂载元素
         const mountEl = document.createElement('div');
@@ -228,13 +230,13 @@ export default {
         instance.$set(instance.$data, 'dragName', e.target.innerText);
         instance.$set(instance.$data, 'dragRect', {
           top,
-          right: left,
-          bottom: top,
+          right,
+          bottom,
           left,
         });
         instance.$mount(mountEl);
 
-        dragendItemMap[uuid] = [`${left}-${top}`, `${left}-${top}`];
+        dragendItemMap[uuid] = [`${left}-${top}`, `${right}-${bottom}`];
 
         instance.$on('dragend', async (address) => {
           dragendItemMap[uuid] = address;
