@@ -203,6 +203,14 @@ export default {
      */
     async onItemDragend(e) {
       if (e.dataTransfer.dropEffect !== 'none') {
+        // 栏目的page_uuid
+        const uuid = e.target.getAttribute('data-uuid');
+
+        if (dragendItemMap[uuid]) {
+          this.$message.info('栏目重复添加');
+          return;
+        }
+
         // 计算出拖动到哪一个方块放置的
         const scrollY = this.$refs.LayoutPanel.scrollTop;
         const top = Math.ceil((this.client.y - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
@@ -215,7 +223,6 @@ export default {
         this.$refs.LayoutPanel.append(mountEl);
 
         // 创建实例，并赋值一些必须的数据，然后挂载到DOM
-        const uuid = e.target.getAttribute('data-uuid');
         const Class = Vue.extend(DragItem);
         const instance = new Class();
         instance.getElement = this.getElement;
