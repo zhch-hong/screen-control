@@ -84,13 +84,13 @@ const CONSUMED_HEIGHT = 147;
 /**
  * 门户中栏目块的位置
  */
-const dragendItemMap = {};
+let dragendItemMap = {};
 
 /**
  * 如果将门户中已有的栏目删除
  * 就添加到这个数组中，保存门户数据时，需要将这些数据传回去
  */
-const removeAlreadyLanmu = [];
+let removeAlreadyLanmu = [];
 
 export default {
   name: 'update-portal',
@@ -115,6 +115,12 @@ export default {
       lanmuHref: [],
       lanmuChart: [],
     };
+  },
+
+  beforeRouteEnter(to, from, next) {
+    dragendItemMap = {};
+    removeAlreadyLanmu = [];
+    next();
   },
 
   created() {

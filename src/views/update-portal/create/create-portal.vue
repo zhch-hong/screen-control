@@ -84,7 +84,7 @@ const CONSUMED_HEIGHT = 147;
 /**
  * 门户中栏目块的位置
  */
-const dragendItemMap = {};
+let dragendItemMap = {};
 
 export default {
   name: 'create-portal',
@@ -109,6 +109,11 @@ export default {
       lanmuHref: [],
       lanmuChart: [],
     };
+  },
+
+  beforeRouteEnter(to, from, next) {
+    dragendItemMap = {};
+    next();
   },
 
   created() {
