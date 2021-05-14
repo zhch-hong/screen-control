@@ -157,7 +157,7 @@ export default {
         .then(({ data }) => {
           console.log('列表', data);
           if (data.code == 200) {
-            this.lanmuList = data.data;
+            this.lanmuList = data.data.filter((m) => m['is_use'] == 1);
           } else {
             this.$message.warning(data.msg);
           }
@@ -171,7 +171,7 @@ export default {
         .then(({ data }) => {
           console.log('链接', data);
           if (data.code == 200) {
-            this.lanmuHref = data.data;
+            this.lanmuHref = data.data.filter((m) => m['is_use'] == 1);
           } else {
             this.$message.warning(data.msg);
           }
@@ -185,7 +185,7 @@ export default {
         .then(({ data }) => {
           console.log('图表', data);
           if (data.code == 200) {
-            this.lanmuChart = data.data;
+            this.lanmuChart = data.data.filter((m) => m['is_use'] == 1);
           } else {
             this.$message.warning(data.msg);
           }
