@@ -47,6 +47,10 @@ export default {
         if (data.code == 200) {
           console.log('门户数据', data);
 
+          if (data.data.background_img) {
+            this.backgroundImage = data.data.background_img;
+          }
+
           this.lanmuList = data.lx_sys_portals_sub;
           this.refreshLayout();
         } else {
