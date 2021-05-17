@@ -205,6 +205,7 @@ export default {
       const width = space + this.border;
 
       const handler = (e) => {
+        if (e.clientX - left - this.consumedWidth < this.border) return;
         this.status.width = e.clientX - left - this.consumedWidth;
       };
 
@@ -231,6 +232,7 @@ export default {
       this.borderStyle = 'dashed';
 
       const handler = (e) => {
+        if (e.clientY + this.scrollTop.value - this.status.top - this.consumedHeight < this.border) return;
         this.status.height = e.clientY + this.scrollTop.value - this.status.top - this.consumedHeight;
       };
 
