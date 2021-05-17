@@ -79,7 +79,7 @@ import PortalBase from '../components/PortalBase.vue';
 import { menhuData, updateMenhu, lanmuListByType } from '@/network';
 
 const CONSUMED_WIDTH = 360;
-const CONSUMED_HEIGHT = 147;
+const CONSUMED_HEIGHT = 180;
 
 /**
  * 门户中栏目块的位置
@@ -494,13 +494,14 @@ div.layout-item {
 }
 
 div.main-container {
+  position: relative;
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
 
   div.layout-panel {
-    flex-grow: 1;
-    position: relative;
+    top: 180px;
+    bottom: 0;
+    width: 100%;
+    position: absolute;
     overflow: auto;
 
     ul.back {
