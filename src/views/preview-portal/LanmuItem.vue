@@ -118,9 +118,6 @@ export default {
 <style lang="scss" scoped>
 .container {
   position: absolute;
-  box-sizing: border-box;
-  border-style: solid;
-  border-color: #f2f2f2;
   background-color: #fff;
   border-radius: 14px;
   overflow: hidden;
