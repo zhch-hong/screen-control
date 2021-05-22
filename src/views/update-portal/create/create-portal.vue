@@ -78,7 +78,9 @@ import DragItem from '../components/DragItem.vue';
 import PortalBase from '../components/PortalBase.vue';
 import { createMenhu, lanmuListByType } from '@/network';
 
+// 布局时被占据的宽度，等于菜单栏的宽度加上栏目拖动区域的的宽度
 const CONSUMED_WIDTH = 360;
+// 布局时被占据的高度，等于门户基础信息所占的高度
 const CONSUMED_HEIGHT = 180;
 
 /**
@@ -95,12 +97,17 @@ export default {
 
   data() {
     return {
+      /** 小方块（li元素）的边长 */
       border: 0,
+      /** 小方块的间隔 */
       margin: 0,
+      /** 门户基础信息 */
       portalBase: null,
+      /** 布局区域滚动的高度 */
       scrollTop: {
         value: 0,
       },
+      /** 鼠标移动时相对于视窗的宽高值 */
       client: {
         x: 0,
         y: 0,
@@ -111,6 +118,9 @@ export default {
     };
   },
 
+  /**
+   * 进入路由前，将栏目位置存储对象清空，一移除的栏目列表置空
+   */
   beforeRouteEnter(to, from, next) {
     dragendItemMap = {};
     next();
@@ -121,6 +131,7 @@ export default {
   },
 
   mounted() {
+    // 当改变浏览器窗口大小时，进行刷新页面
     this.debounceFlush = _.debounce(this.flushLayout, 300);
     window.addEventListener('resize', this.debounceFlush);
     this.flushLayout();
@@ -175,6 +186,10 @@ export default {
         });
     },
 
+    /**
+     * 计算每个小方块的边长和小方块的间隔
+     *
+     */
     flushLayout() {
       const width = window.innerWidth - CONSUMED_WIDTH;
       const border = Math.floor((width * 3.75) / 86);
@@ -183,6 +198,9 @@ export default {
       this.margin = Math.floor(border / 3.75 / 2);
     },
 
+    /**
+     * 拖动时记录鼠标相对于视窗的宽高值
+     */
     ondrop(e) {
       e.preventDefault();
 
@@ -249,6 +267,7 @@ export default {
 
         dragendItemMap[uuid] = [`${left}-${top}`, `${right}-${bottom}`];
 
+        // 拖动结束时判断栏目是否交错
         instance.$on('dragend', async (address) => {
           dragendItemMap[uuid] = address;
 
@@ -260,6 +279,7 @@ export default {
           }
         });
 
+        // 删除栏目时，将栏目放置到删除的数组中
         instance.$on('remove', () => {
           instance.$el.remove();
           instance.$destroy();
@@ -268,6 +288,7 @@ export default {
 
         await this.$nextTick();
 
+        // 当从左边的栏目拖动区域拖动到右边的布局区域时，立刻判断是否栏目交错
         if (this.isIntersectionRect()) {
           this.$message.error('栏目交错');
           instance.$el.remove();
@@ -279,6 +300,8 @@ export default {
 
     /**
      * 判断栏目之间是否存在交叉重叠
+     *
+     * 通过两两相交判断
      */
     isIntersectionRect() {
       const array = _.cloneDeep(Object.values(dragendItemMap));
@@ -318,11 +341,15 @@ export default {
       return isFind(s, array);
     },
 
+    /**
+     * 保存
+     */
     handleSubmit(portalBase) {
       console.log(portalBase);
       const dataList = [];
       const _f = Number.parseFloat;
 
+      // 获取所有布局区域的栏目
       const element = this.$refs.LayoutPanel;
       const nodeList = element.querySelectorAll('div.drag');
       nodeList.forEach((element) => {

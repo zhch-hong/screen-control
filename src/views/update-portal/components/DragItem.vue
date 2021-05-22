@@ -58,6 +58,9 @@ export default {
         width: 0,
         height: 0,
       },
+      /**
+       * 拖动鼠标时，鼠标的视窗位置
+       */
       client: {
         x: 0,
         y: 0,
@@ -70,6 +73,13 @@ export default {
   },
 
   methods: {
+    /**
+     * 设置的top和left，只用于更新门户，因为只有更新门户，才会自带栏目数据
+     * 如果栏目初始化已经有位置坐标，则设置位置坐标
+     *
+     * 通过坐标获取所在li元素，然后用li元素的视窗宽高减去已经占据的宽高
+     * 得到的就是栏目的top和left
+     */
     refreshAddress() {
       if (this.dragRect) {
         const top = this.dragRect.top,
@@ -87,6 +97,12 @@ export default {
       }
     },
 
+    /**
+     * 当栏目改变位置和宽高时修改对应的属性
+     *
+     * 使用右下角的坐标获取对应的li元素
+     * 用li元素的视窗宽高减去布局的视窗宽高，再减去栏目的top和left，得到的就是栏目的宽高
+     */
     refreshSize(top, left, bottom, right) {
       const li = this.getElement('REF_' + bottom + '_' + right);
       const layout = li.parentElement.parentElement;
@@ -130,6 +146,12 @@ export default {
       beforeDragAddress.height = this.status.height;
     },
 
+    /**
+     * 拖动开始时
+     *
+     * 记录鼠标相对于栏目左上角的偏移量
+     * 缓存拖动前的位置
+     */
     ondragstart(e) {
       this.borderStyle = 'dashed';
 
@@ -141,6 +163,11 @@ export default {
 
     /**
      * 已经存在于布局区域的栏目块拖动结束
+     *
+     * top值为鼠标相对于视窗的高加上滚动的高度减去鼠标位置偏移高再减去已被门户基础信息占据的高
+     * left值为鼠标相对于视窗的宽减去鼠标位置偏移宽再减去门户基础信息占据的宽
+     *
+     * 根据top和left值计算出所在li元素，然后计算处栏目的top和left值
      */
     async ondragend(e) {
       this.borderStyle = 'solid';
@@ -165,9 +192,13 @@ export default {
 
       await this.$nextTick();
 
+      // 将位置信息提交到父级组件进行判断是否与其他栏目交错
       this.$emit('dragend', [this.startAddress, this.endAddress]);
     },
 
+    /**
+     * 设置栏目的左上角坐标和右下角坐标
+     */
     setAddressData() {
       const sx = Math.ceil(this.status.left / (this.border + this.margin));
       const sy = Math.ceil(this.status.top / (this.border + this.margin));
@@ -194,6 +225,9 @@ export default {
       }
     },
 
+    /**
+     * 改变宽度
+     */
     resizeWidth() {
       this.cacheAddress();
 
@@ -205,7 +239,9 @@ export default {
       const width = space + this.border;
 
       const handler = (e) => {
+        // 宽度不能小于一个方格
         if (e.clientX - left - this.consumedWidth < this.border) return;
+
         this.status.width = e.clientX - left - this.consumedWidth;
       };
 
@@ -215,7 +251,9 @@ export default {
         'mouseup',
         (e) => {
           this.borderStyle = 'solid';
+          // 计算宽度
           this.status.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left;
+
           document.removeEventListener('mousemove', handler);
           this.setAddressData();
           this.$nextTick(() => {
@@ -226,6 +264,9 @@ export default {
       );
     },
 
+    /**
+     * 改变高度
+     */
     resizeHeight() {
       this.cacheAddress();
 
@@ -243,6 +284,7 @@ export default {
         (e) => {
           this.borderStyle = 'solid';
 
+          // 计算高度
           const _h = this.border + this.margin;
           const _d =
             Math.ceil((e.clientY - this.consumedHeight + this.scrollTop.value) / _h) * _h -

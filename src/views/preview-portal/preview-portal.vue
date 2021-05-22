@@ -59,11 +59,16 @@ export default {
       });
     },
 
+    /**
+     * 页面布局
+     */
     refreshLayout() {
+      // 设置页面高度
       this.height = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y)) * this.borderLength + 'px';
 
       const preview = this.$refs.preview;
 
+      // 遍历添加门户栏目
       this.lanmuList.forEach((lm, index) => {
         const div = document.createElement('div');
         preview.append(div);
@@ -78,12 +83,19 @@ export default {
         const mountElement = instance.getMountElement();
         const renderWrapClass = Vue.extend(RenderWrap);
         const renderWrapInstance = new renderWrapClass();
+
+        // 这个地方需要后端返回的link_address字段进行赋值
         if (index % 2 === 0) renderWrapInstance.path = '/OneCom';
-        else renderWrapInstance.path = '/TwoCom';
+        // renderWrapInstance.path = lm.link_address;
+        // lm.link_address
+        else renderWrapInstance.path = '/TwoCom'; // 这一行也不需要了
         renderWrapInstance.$mount(mountElement);
       });
     },
 
+    /**
+     * 设置栏目位置和宽高
+     */
     setAddress(instance, { page_left_top_X, page_left_top_Y, page_right_botton_X, page_right_botton_Y }) {
       const s = instance.containerObservableStyle;
       const m = 10;
@@ -94,6 +106,9 @@ export default {
       instance.$set(s, 'height', (page_right_botton_Y - page_left_top_Y + 1) * this.borderLength - m * 2 + 'px');
     },
 
+    /**
+     * 栏目附属数据
+     */
     setLanmuData(
       instance,
       {
