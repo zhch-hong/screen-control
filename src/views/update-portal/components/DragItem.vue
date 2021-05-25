@@ -74,6 +74,29 @@ export default {
 
   methods: {
     /**
+     * 根据栏目坐标重新设置栏目的top left width height
+     * 用于布局元素改变大小后调用
+     */
+    resetByAddress() {
+      const layoutRect = this.$el.parentElement.getBoundingClientRect();
+
+      const lx = this.startAddress.split('-')[0];
+      const ly = this.startAddress.split('-')[1];
+      const rx = this.endAddress.split('-')[0];
+      const ry = this.endAddress.split('-')[1];
+
+      const startLi = this.getElement('REF_' + ly + '_' + lx);
+      const endLi = this.getElement('REF_' + ry + '_' + rx);
+      const startRect = startLi.getBoundingClientRect();
+      const endRect = endLi.getBoundingClientRect();
+
+      this.status.top = startRect.top - layoutRect.top + this.scrollTop.value;
+      this.status.left = startRect.left - layoutRect.left;
+      this.status.width = endRect.right - startRect.left;
+      this.status.height = endRect.bottom - startRect.top;
+    },
+
+    /**
      * 设置的top和left，只用于更新门户，因为只有更新门户，才会自带栏目数据
      * 如果栏目初始化已经有位置坐标，则设置位置坐标
      *
@@ -172,9 +195,11 @@ export default {
     async ondragend(e) {
       this.borderStyle = 'solid';
 
+      const layoutRect = this.$el.parentElement.getBoundingClientRect();
+
       const top = this.client.y + this.scrollTop.value - UNRELATED.offsetY - this.consumedHeight;
-      const left = this.client.x - this.consumedWidth - UNRELATED.offsetX;
-      const len = this.border + this.margin;
+      const left = this.client.x - layoutRect.left - UNRELATED.offsetX;
+      const len = this.border.value + this.margin.value;
       const row = top / len;
       const col = left / len;
 
@@ -184,7 +209,7 @@ export default {
 
       const rect = li.getBoundingClientRect();
 
-      this.status.left = rect.left - this.consumedWidth;
+      this.status.left = rect.left - layoutRect.left;
       this.status.top = rect.top + this.scrollTop.value - this.consumedHeight;
 
       this.setAddressData();
@@ -200,12 +225,12 @@ export default {
      * 设置栏目的左上角坐标和右下角坐标
      */
     setAddressData() {
-      const sx = Math.ceil(this.status.left / (this.border + this.margin));
-      const sy = Math.ceil(this.status.top / (this.border + this.margin));
+      const sx = Math.ceil(this.status.left / (this.border.value + this.margin.value));
+      const sy = Math.ceil(this.status.top / (this.border.value + this.margin.value));
       this.startAddress = `${sx}-${sy}`;
 
-      const ex = Math.round((this.status.left + this.status.width) / (this.border + this.margin));
-      const ey = Math.round((this.status.top + this.status.height) / (this.border + this.margin));
+      const ex = Math.round((this.status.left + this.status.width) / (this.border.value + this.margin.value));
+      const ey = Math.round((this.status.top + this.status.height) / (this.border.value + this.margin.value));
       this.endAddress = `${ex}-${ey}`;
     },
 
@@ -219,7 +244,7 @@ export default {
 
       if (rx > 20) {
         const rby = this.endAddress.split('-')[1];
-        const w = (20 - lx + 1) * this.border + (20 - lx) * this.margin;
+        const w = (20 - lx + 1) * this.border.value + (20 - lx) * this.margin.value;
         this.status.width = w;
         this.endAddress = `${20}-${rby}`;
       }
@@ -233,16 +258,18 @@ export default {
 
       this.borderStyle = 'dashed';
 
+      const layoutRect = this.$el.parentElement.getBoundingClientRect();
+
       const left = this.status.left;
       const ul = this.$el.parentElement.querySelector('ul.back');
-      const space = (ul.clientWidth - ul.childElementCount * this.border) / (ul.childElementCount + 1);
-      const width = space + this.border;
+      const space = (ul.clientWidth - ul.childElementCount * this.border.value) / (ul.childElementCount + 1);
+      const width = space + this.border.value;
 
       const handler = (e) => {
         // 宽度不能小于一个方格
-        if (e.clientX - left - this.consumedWidth < this.border) return;
+        if (e.clientX - left - layoutRect.left < this.border.value) return;
 
-        this.status.width = e.clientX - left - this.consumedWidth;
+        this.status.width = e.clientX - left - layoutRect.left;
       };
 
       document.addEventListener('mousemove', handler);
@@ -252,7 +279,7 @@ export default {
         (e) => {
           this.borderStyle = 'solid';
           // 计算宽度
-          this.status.width = Math.ceil((e.clientX - this.consumedWidth) / width) * width - left;
+          this.status.width = Math.ceil((e.clientX - layoutRect.left) / width) * width - left;
 
           document.removeEventListener('mousemove', handler);
           this.setAddressData();
@@ -273,7 +300,7 @@ export default {
       this.borderStyle = 'dashed';
 
       const handler = (e) => {
-        if (e.clientY + this.scrollTop.value - this.status.top - this.consumedHeight < this.border) return;
+        if (e.clientY + this.scrollTop.value - this.status.top - this.consumedHeight < this.border.value) return;
         this.status.height = e.clientY + this.scrollTop.value - this.status.top - this.consumedHeight;
       };
 
@@ -285,7 +312,7 @@ export default {
           this.borderStyle = 'solid';
 
           // 计算高度
-          const _h = this.border + this.margin;
+          const _h = this.border.value + this.margin.value;
           const _d =
             Math.ceil((e.clientY - this.consumedHeight + this.scrollTop.value) / _h) * _h -
             (this.status.top + this.status.height);

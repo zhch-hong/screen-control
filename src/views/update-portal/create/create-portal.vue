@@ -59,12 +59,12 @@
         @dragover="ondragover"
         @scroll.self.prevent.stop="(e) => (scrollTop.value = e.target.scrollTop)"
       >
-        <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin}px 0` }">
+        <ul v-for="indexul in 100" :key="indexul" class="back" :style="{ margin: `${margin.value}px 0` }">
           <li
             v-for="indexli in 20"
             :key="indexli"
             :ref="'REF_' + indexul + '_' + indexli"
-            :style="{ width: border + 'px', height: border + 'px' }"
+            :style="{ width: border.value + 'px', height: border.value + 'px' }"
           ></li>
         </ul>
       </div>
@@ -78,8 +78,6 @@ import DragItem from '../components/DragItem.vue';
 import PortalBase from '../components/PortalBase.vue';
 import { createMenhu, lanmuListByType } from '@/network';
 
-// 布局时被占据的宽度，等于菜单栏的宽度加上栏目拖动区域的的宽度
-const CONSUMED_WIDTH = 360;
 // 布局时被占据的高度，等于门户基础信息所占的高度
 const CONSUMED_HEIGHT = 180;
 
@@ -97,10 +95,16 @@ export default {
 
   data() {
     return {
+      instanceList: [],
+
       /** 小方块（li元素）的边长 */
-      border: 0,
+      border: {
+        value: 0,
+      },
       /** 小方块的间隔 */
-      margin: 0,
+      margin: {
+        value: 0,
+      },
       /** 门户基础信息 */
       portalBase: null,
       /** 布局区域滚动的高度 */
@@ -112,6 +116,7 @@ export default {
         x: 0,
         y: 0,
       },
+
       lanmuList: [],
       lanmuHref: [],
       lanmuChart: [],
@@ -131,14 +136,22 @@ export default {
   },
 
   mounted() {
-    // 当改变浏览器窗口大小时，进行刷新页面
-    this.debounceFlush = _.debounce(this.flushLayout, 300);
-    window.addEventListener('resize', this.debounceFlush);
-    this.flushLayout();
-  },
+    // 监听布局元素的大小变化，重新计算布局及布局中的栏目元素
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.contentRect) {
+          this.flushLayout(entry.contentRect.width);
 
-  beforeDestroy() {
-    window.removeEventListener('resize', this.debounceFlush);
+          this.$nextTick(() => {
+            this.instanceList.forEach((ins) => {
+              if (ins) ins.resetByAddress();
+            });
+          });
+        }
+      }
+    });
+
+    resizeObserver.observe(this.$refs.LayoutPanel);
   },
 
   methods: {
@@ -190,12 +203,11 @@ export default {
      * 计算每个小方块的边长和小方块的间隔
      *
      */
-    flushLayout() {
-      const width = window.innerWidth - CONSUMED_WIDTH;
+    flushLayout(width) {
       const border = Math.floor((width * 3.75) / 86);
 
-      this.border = border;
-      this.margin = Math.floor(border / 3.75 / 2);
+      this.border.value = border;
+      this.margin.value = Math.floor(border / 3.75 / 2);
     },
 
     /**
@@ -236,8 +248,11 @@ export default {
 
         // 计算出拖动到哪一个方块放置的
         const scrollY = this.$refs.LayoutPanel.scrollTop;
-        const top = Math.ceil((this.client.y - CONSUMED_HEIGHT + scrollY) / (this.border + this.margin));
-        const left = Math.ceil((this.client.x - CONSUMED_WIDTH) / (this.border + this.margin));
+        const top = Math.ceil((this.client.y - CONSUMED_HEIGHT + scrollY) / (this.border.value + this.margin.value));
+        const left = Math.ceil(
+          (this.client.x - this.$refs.LayoutPanel.getBoundingClientRect().left) /
+            (this.border.value + this.margin.value)
+        );
         const right = left + 1;
         const bottom = top + 1;
 
@@ -252,7 +267,6 @@ export default {
         instance.border = this.border;
         instance.dataPageUUID = uuid;
         instance.margin = this.margin;
-        instance.consumedWidth = CONSUMED_WIDTH;
         instance.consumedHeight = CONSUMED_HEIGHT;
         instance.scrollTop = this.scrollTop;
         instance.client = this.client;
@@ -295,6 +309,8 @@ export default {
           instance.$destroy();
           delete dragendItemMap[uuid];
         }
+
+        this.instanceList.push(instance);
       }
     },
 
@@ -345,7 +361,6 @@ export default {
      * 保存
      */
     handleSubmit(portalBase) {
-      console.log(portalBase);
       const dataList = [];
       const _f = Number.parseFloat;
 
