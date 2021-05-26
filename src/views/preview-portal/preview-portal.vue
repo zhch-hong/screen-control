@@ -1,5 +1,9 @@
 <template>
-  <el-scrollbar style="height: 100vh; background-color: #f2f2f2" wrapStyle="height: 100%; overflow-x: hidden;">
+  <el-scrollbar
+    ref="ElScrollbar"
+    style="height: 100vh; background-color: #f2f2f2"
+    wrapStyle="height: 100%; overflow-x: hidden;"
+  >
     <div ref="preview" class="preview" :style="{ margin, height, 'background-image': `url(${backgroundImage})` }"></div>
   </el-scrollbar>
 </template>
@@ -25,6 +29,7 @@ export default {
 
   data() {
     return {
+      instanceList: [],
       uuid: '',
       margin: getMargin(),
       height: '',
@@ -38,6 +43,37 @@ export default {
     const { uuid } = this.$route.params;
     this.uuid = uuid;
     this.fetchMenhuData();
+
+    // 监听布局元素的大小变化，重新计算布局及布局中的栏目元素
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.contentRect) {
+          // 重新计算各个参数值
+          this.margin = getMargin();
+          this.borderLength = getBorderLength();
+          this.height = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y)) * this.borderLength + 'px';
+
+          // 销毁已存在得栏目元素
+          this.instanceList.forEach((ins) => {
+            ins.$el.remove();
+            ins.$destroy();
+          });
+
+          // 重置栏目列表
+          this.instanceList = [];
+          // 重新添加栏目
+          this.refreshLayout();
+          // 更新滚动条
+          this.$nextTick(() => {
+            this.$refs.ElScrollbar.update();
+          });
+        }
+      }
+    });
+
+    this.$nextTick(() => {
+      resizeObserver.observe(this.$refs.preview);
+    });
   },
 
   methods: {
@@ -76,6 +112,8 @@ export default {
         const subclass = Vue.extend(LanmuItem);
         const instance = new subclass();
         instance.$mount(div);
+
+        this.instanceList.push(instance);
 
         this.setAddress(instance, lm);
         this.setLanmuData(instance, lm);
