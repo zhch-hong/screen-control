@@ -29,7 +29,7 @@ export default {
 
   data() {
     return {
-      instanceList: [],
+      instanceList: new Map(),
       uuid: '',
       margin: getMargin(),
       height: '',
@@ -53,16 +53,11 @@ export default {
           this.borderLength = getBorderLength();
           this.height = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y)) * this.borderLength + 'px';
 
-          // 销毁已存在得栏目元素
-          this.instanceList.forEach((ins) => {
-            ins.$el.remove();
-            ins.$destroy();
+          // 重新设置栏目的位置大小
+          this.instanceList.forEach((lm, instance) => {
+            this.setAddress(instance, lm);
           });
 
-          // 重置栏目列表
-          this.instanceList = [];
-          // 重新添加栏目
-          this.refreshLayout();
           // 更新滚动条
           this.$nextTick(() => {
             this.$refs.ElScrollbar.update();
@@ -113,7 +108,7 @@ export default {
         const instance = new subclass();
         instance.$mount(div);
 
-        this.instanceList.push(instance);
+        this.instanceList.set(instance, lm);
 
         this.setAddress(instance, lm);
         this.setLanmuData(instance, lm);
