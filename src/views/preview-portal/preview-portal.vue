@@ -4,7 +4,7 @@
     style="height: 100vh; background-color: #f2f2f2"
     wrapStyle="height: 100%; overflow-x: hidden;"
   >
-    <div ref="preview" class="preview" :style="{ margin, height, 'background-image': `url(${backgroundImage})` }"></div>
+    <div ref="preview" class="preview" :style="{ height, 'background-image': `url(${backgroundImage})` }"></div>
   </el-scrollbar>
 </template>
 <script>
@@ -14,29 +14,36 @@ import backgroundImage from '@/asseats/Snipaste_2021-05-17_20-52-22.png';
 import RenderWrap from './RenderWrap.vue';
 import LanmuItem from './LanmuItem.vue';
 
-function getBorderLength() {
-  return Math.floor(document.documentElement.clientWidth / 20);
-}
+// eslint-disable-next-line no-unused-vars
+let localSpace = 20;
+let colCount = 20;
 
-function getMargin() {
-  const f = (document.documentElement.clientWidth % 20) / 2;
-  const i = Math.floor(f);
-  return i + 'px';
+function getBorderLength() {
+  return (document.documentElement.clientWidth - localSpace * (colCount + 1)) / colCount;
 }
 
 export default {
   name: 'preview-portal',
 
   data() {
+    console.log('data');
+
     return {
       instanceList: new Map(),
       uuid: '',
-      margin: getMargin(),
       height: '',
       borderLength: getBorderLength(),
       lanmuList: [],
       backgroundImage: backgroundImage,
     };
+  },
+
+  beforeRouteEnter(to, from, next) {
+    const { space } = to.params;
+
+    localSpace = space ? parseInt(space) : localSpace;
+
+    next();
   },
 
   mounted() {
@@ -49,9 +56,9 @@ export default {
       for (let entry of entries) {
         if (entry.contentRect) {
           // 重新计算各个参数值
-          this.margin = getMargin();
           this.borderLength = getBorderLength();
-          this.height = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y)) * this.borderLength + 'px';
+          const maxY = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y));
+          this.height = maxY * this.borderLength + localSpace * maxY + localSpace + 'px';
 
           // 重新设置栏目的位置大小
           this.instanceList.forEach((lm, instance) => {
@@ -74,6 +81,7 @@ export default {
   methods: {
     fetchMenhuData() {
       const { uuid } = this.$route.params;
+
       menhuData({ '~table~': 'lx_sys_portals', uuid }).then(({ data }) => {
         if (data.code == 200) {
           console.log('门户数据', data);
@@ -95,7 +103,8 @@ export default {
      */
     refreshLayout() {
       // 设置页面高度
-      this.height = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y)) * this.borderLength + 'px';
+      const maxY = Math.max(...this.lanmuList.map((item) => item.page_right_botton_Y));
+      this.height = maxY * this.borderLength + localSpace * maxY + localSpace + 'px';
 
       const preview = this.$refs.preview;
 
@@ -131,12 +140,23 @@ export default {
      */
     setAddress(instance, { page_left_top_X, page_left_top_Y, page_right_botton_X, page_right_botton_Y }) {
       const s = instance.containerObservableStyle;
-      const m = 10;
 
-      instance.$set(s, 'top', (page_left_top_Y - 1) * this.borderLength + m + 'px');
-      instance.$set(s, 'left', (page_left_top_X - 1) * this.borderLength + m + 'px');
-      instance.$set(s, 'width', (page_right_botton_X - page_left_top_X + 1) * this.borderLength - m * 2 + 'px');
-      instance.$set(s, 'height', (page_right_botton_Y - page_left_top_Y + 1) * this.borderLength - m * 2 + 'px');
+      instance.$set(s, 'top', (page_left_top_Y - 1) * this.borderLength + localSpace * page_left_top_Y + 'px');
+      instance.$set(s, 'left', (page_left_top_X - 1) * this.borderLength + localSpace * page_left_top_X + 'px');
+      instance.$set(
+        s,
+        'width',
+        (page_right_botton_X - page_left_top_X + 1) * this.borderLength +
+          localSpace * (page_right_botton_X - page_left_top_X) +
+          'px'
+      );
+      instance.$set(
+        s,
+        'height',
+        (page_right_botton_Y - page_left_top_Y + 1) * this.borderLength +
+          localSpace * (page_right_botton_Y - page_left_top_Y) +
+          'px'
+      );
     },
 
     /**
@@ -180,5 +200,6 @@ div.preview {
   background-attachment: scroll;
   background-repeat: no-repeat;
   background-size: cover;
+  background-position: center;
 }
 </style>

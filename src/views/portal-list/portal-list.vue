@@ -13,7 +13,7 @@
       <vxe-table-column title="操作">
         <template #default="{ row }">
           <el-button size="mini" type="text">
-            <router-link :to="'/preview-portal/' + row.uuid" #default="{ href }" custom>
+            <router-link :to="'/preview-portal/' + row.uuid + '/' + space" #default="{ href }" custom>
               <a :href="href" target="_blank" style="text-decoration-line: unset">预览</a>
             </router-link>
           </el-button>
@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       tableData: [],
-
+      space: 20,
       currentPage: 1,
       pageSize: 20,
       totalResult: 0,

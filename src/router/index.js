@@ -52,7 +52,7 @@ const routes = [
     ],
   },
   {
-    path: '/preview-portal/:uuid',
+    path: '/preview-portal/:uuid/:space',
     name: '门户预览',
     component: () => import('@/views/preview-portal/preview-portal.vue'),
     meta: { hidden: true },
